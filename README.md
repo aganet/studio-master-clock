@@ -1,4 +1,4 @@
-# LED-style Studio  Masterclock with NTP Sync
+# LED-style Studio  Masterclock with NTP Sync in html page
 
 ## About this clock
 
