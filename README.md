@@ -1,6 +1,19 @@
 # LED-style Studio  Masterclock with NTP Sync
 
+## About this clock
+
+I have always been fascinated by studio-style LED clocks, with their sleek and professional appearance often seen in television studios and production environments. Unfortunately, I never had the opportunity to own one myself. After searching extensively for a similar project online and not finding anything that matched my vision, I decided to create one from scratch. This clock is my way of combining my appreciation for studio aesthetics with my passion for programming.
+
+This project is highly versatile and can be used in various ways:
+
+- As a studio-style LED clock with Raspberry Pi and screens.
+- By ham radio enthusiasts to display custom call signs alongside the clock.
+
+I am sharing this project to help others who might also be interested in having a similar clock. Feel free to use, customize, or contribute to its development!
+
 A fullscreen LED-style masterclock that dynamically displays the current time, synchronizes with an NTP server, and highlights second segments with an interactive visual effect.
+
+
 
 ![master-clock](https://github.com/user-attachments/assets/877a2fba-d43a-4280-a8dc-6d10175b1404)
 
