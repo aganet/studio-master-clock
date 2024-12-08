@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LED Masterclock with NTP Sync</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: black;
+            height: 100vh;
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+        }
+
+        .clock-container {
+            position: relative;
+            width: 100vmin;
+            height: 100vmin;
+        }
+
+        .segments, .hour-marker {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .segment {
+            position: absolute;
+            width: 2.5%;
+            height: 2.5%;
+            background-color: rgba(255, 0, 0, 0.2);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform-origin: 50% 50%;
+            transition: background-color 0.2s;
+        }
+
+        .segment.active {
+            background-color: red;
+        }
+
+        .hour-marker {
+            width: 2.5%;
+            height: 2.4%;
+            background-color: #450000;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform-origin: 50% 50%;
+        }
+
+        .time-display {
+            position: absolute;
+            top: 55%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: red;
+        }
+
+        .time-display .time {
+            font-size: 17vmin;
+            letter-spacing: 0.5vmin;
+        }
+
+        .time-display .seconds {
+            font-size: 15vmin;
+        }
+
+        .custom-text {
+            position: absolute;
+            top: 75%;
+            left: 50%;
+            transform: translate(-50%, 0);
+            text-align: center;
+            color: red;
+            font-size: 6vmin;
+        }
+
+        .sync-info {
+            position: absolute;
+            top: 1%;
+            left: 1%;
+            color: rgb(94, 0, 0);
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 2vmin;
+        }
+    </style>
+</head>
+<body>
+    <div class="clock-container">
+        <div class="segments"></div>
+        <div class="time-display">
+            <div class="time">00:00</div>
+            <div class="seconds">00</div>
+        </div>
+        <div class="custom-text" id="customText">Your Custom Text</div>
+        <div class="sync-info" id="syncInfo">NTP Sync: Checking...</div>
+    </div>
+
+    <script>
+        const segmentsContainer = document.querySelector('.segments');
+        const timeDisplay = document.querySelector('.time');
+        const secondsDisplay = document.querySelector('.seconds');
+        const customTextDisplay = document.getElementById('customText');
+        const syncInfoDisplay = document.getElementById('syncInfo');
+
+        let customText = "M0JPK";
+
+        // Generate segments and hour markers
+        for (let i = 0; i < 60; i++) {
+            const segment = document.createElement('div');
+            segment.classList.add('segment');
+            segment.style.transform = `rotate(${i * 6}deg) translate(0, -45vmin)`;
+            segmentsContainer.appendChild(segment);
+        }
+
+        for (let i = 0; i < 12; i++) {
+            const hourMarker = document.createElement('div');
+            hourMarker.classList.add('hour-marker');
+            hourMarker.style.transform = `rotate(${i * 30 - 90}deg) translate(0, -42vmin)`;
+            segmentsContainer.appendChild(hourMarker);
+        }
+
+        const segments = document.querySelectorAll('.segment');
+
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = now.getSeconds();
+
+            // Update time display
+            timeDisplay.textContent = `${hours}:${minutes}`;
+            secondsDisplay.textContent = String(seconds).padStart(2, '0');
+
+            // Update segments
+            segments.forEach((segment, index) => {
+                segment.classList.toggle('active', index <= seconds);
+            });
+
+            // Update custom text
+            customTextDisplay.textContent = customText;
+
+            // Synchronize updates with system clock
+            const nextUpdate = 1000 - now.getMilliseconds();
+            setTimeout(updateClock, nextUpdate);
+        }
+
+        async function fetchNtpTime() {
+            try {
+                const response = await fetch('https://worldtimeapi.org/api/ip');
+                const data = await response.json();
+
+                // Parse NTP time
+                const ntpTime = new Date(data.utc_datetime);
+                const localTime = new Date();
+                const timeDiff = Math.abs(localTime - ntpTime);
+
+                // Update sync info
+                syncInfoDisplay.textContent = `NTP Sync: Success\nDiff: ${timeDiff}ms\nLocal Timezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}`;
+            } catch (error) {
+                syncInfoDisplay.textContent = 'NTP Sync: Failed';
+            }
+        }
+
+        // Start the clock and fetch NTP time every 30 seconds
+        updateClock();
+        fetchNtpTime();
+        setInterval(fetchNtpTime, 30000);
+    </script>
+</body>
+</html>
