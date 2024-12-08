@@ -1,4 +1,4 @@
-# LED Masterclock with NTP Sync
+# LED-style Studio  Masterclock with NTP Sync
 
 A fullscreen LED-style masterclock that dynamically displays the current time, synchronizes with an NTP server, and highlights second segments with an interactive visual effect.
 
@@ -86,5 +86,3 @@ This project is licensed under the [MIT License](LICENSE).
 - The open-source community for inspiration and contributions.
 
 ---
-
-You can directly save this response as `README.md` in your project repository. Let me know if you need further changes!
