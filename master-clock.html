@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LED Masterclock with NTP Sync</title>
+    <link href="https://cdn.jsdelivr.net/npm/dseg@0.46.0/css/dseg.css" rel="stylesheet">
     <style>
         body {
             margin: 0;
@@ -47,9 +48,10 @@
         }
 
         .hour-marker {
+            position: absolute;
             width: 2.5%;
             height: 2.4%;
-            background-color: #450000;
+            background-color: red;
             border-radius: 50%;
             top: 50%;
             left: 50%;
@@ -62,7 +64,7 @@
             left: 50%;
             transform: translate(-50%, -50%);
             text-align: center;
-            font-family: monospace;
+            font-family: 'DSEG7-Classic', monospace;
             color: red;
         }
 
@@ -115,7 +117,8 @@
         const customTextDisplay = document.getElementById('customText');
         const syncInfoDisplay = document.getElementById('syncInfo');
 
-        let customText = "CUSTOM TEXT";
+        const customText = "CUSTOM TEXT";
+        customTextDisplay.textContent = customText;
 
         // Generate segments and hour markers
         for (let i = 0; i < 60; i++) {
@@ -149,9 +152,6 @@
                 segment.classList.toggle('active', index <= seconds);
             });
 
-            // Update custom text
-            customTextDisplay.textContent = customText;
-
             // Synchronize updates with system clock
             const nextUpdate = 1000 - now.getMilliseconds();
             setTimeout(updateClock, nextUpdate);
@@ -159,16 +159,19 @@
 
         async function fetchNtpTime() {
             try {
-                const response = await fetch('https://worldtimeapi.org/api/ip');
+                const response = await fetch('http://worldclockapi.com/api/json/utc/now');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
                 const data = await response.json();
 
-                // Parse NTP time
-                const ntpTime = new Date(data.utc_datetime);
+                // Parse time from worldclockapi (returns UTC)
+                const ntpTime = new Date(data.currentDateTime);
                 const localTime = new Date();
                 const timeDiff = Math.abs(localTime - ntpTime);
 
                 // Update sync info
-                syncInfoDisplay.textContent = `NTP Sync: Success\nDiff: ${timeDiff}ms\nLocal Timezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}`;
+                syncInfoDisplay.innerHTML = `NTP Sync: Success<br>Diff: ${timeDiff}ms<br>Timezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}`;
             } catch (error) {
                 syncInfoDisplay.textContent = 'NTP Sync: Failed';
             }
