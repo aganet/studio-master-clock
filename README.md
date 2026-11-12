@@ -28,7 +28,7 @@ A fullscreen LED-style masterclock that dynamically displays the current time, s
 
 ## Demo
 
-[DEMO](https://aganet.gr/clock/)
+[DEMO](https://clock.aganet.gr)
 
 
 ## Installation
