@@ -1,201 +1,877 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LED Masterclock with NTP Sync</title>
-    <link href="https://cdn.jsdelivr.net/npm/dseg@0.46.0/css/dseg.css" rel="stylesheet">
-    <style>
-        body {
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: black;
-            height: 100vh;
-            font-family: 'Courier New', Courier, monospace;
-            overflow: hidden;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Studio Master Clock</title>
+<!--
+  Studio master clock in one file. Works offline: the DSEG7 font is embedded
+  (SIL Open Font License 1.1, (c) keshikan). Press H on the clock for the keys
+  and URL parameters, see README.md for remote control.
+-->
+<style>
+  @font-face {
+    font-family: "DSEG7";
+    src: url(data:font/woff2;base64,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) format("woff2");
+    font-display: block;
+  }
+  :root {
+    color-scheme: dark;
+    --led-rgb: 255, 42, 26;
+    --onair: #ff1e1e;
+    --warn: #ffb000;
+    --bg: #000;
+  }
+  html, body { margin: 0; height: 100%; background: var(--bg); overflow: hidden; }
+  body {
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-user-select: none; user-select: none;
+  }
+  body.idle, body.idle * { cursor: none !important; }
+  body.dim .clock, body.dim .side { filter: brightness(.33); }
 
-        .clock-container {
-            position: relative;
-            width: 100vmin;
-            height: 100vmin;
-        }
+  .clock { position: relative; width: 96vmin; height: 96vmin; transition: transform 3s ease; }
+  .ring { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .ring .sec { fill: rgba(var(--led-rgb), .12); }
+  .ring .sec.on, .ring .hour { fill: rgb(var(--led-rgb)); filter: url(#glow); }
 
-        .segments, .hour-marker {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
+  .center {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: rgb(var(--led-rgb));
+  }
+  .date {
+    display: flex; gap: 1.2em; max-width: 64vmin; margin-bottom: 2.4vmin;
+    font-size: 2.6vmin; letter-spacing: .08em; white-space: nowrap; color: rgba(var(--led-rgb), .7);
+  }
+  .date span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .date span:empty { display: none; }
+  .date .zone { flex: none; color: rgb(var(--led-rgb)); font-weight: 600; }
+  .digits { position: relative; display: inline-block; line-height: 1; font-family: "DSEG7", monospace; font-weight: bold; }
+  .digits .ghost { position: absolute; left: 0; top: 0; color: rgba(var(--led-rgb), .07); }
+  .digits .lit { position: relative; text-shadow: 0 0 2vmin rgba(var(--led-rgb), .55); }
+  .time { font-size: 16vmin; letter-spacing: .4vmin; }
+  .secrow { position: relative; margin-top: 3vmin; }
+  .secs { font-size: 9.5vmin; }
+  .ampm { position: absolute; left: calc(100% + 1.5vmin); bottom: .3vmin; font-size: 2.8vmin; letter-spacing: .1em; }
+  .label {
+    margin-top: 4vmin; max-width: 62vmin; font-size: 5vmin; letter-spacing: .12em; font-weight: 600;
+    text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .label:empty, .ampm:empty { display: none; }
 
-        .segment {
-            position: absolute;
-            width: 2.5%;
-            height: 2.5%;
-            background-color: rgba(255, 0, 0, 0.2);
-            border-radius: 50%;
-            top: 50%;
-            left: 50%;
-            transform-origin: 50% 50%;
-            transition: background-color 0.2s;
-        }
+  /* Side panels: corner overlays on square and portrait screens, columns beside the dial on wide ones. */
+  .side {
+    position: fixed; inset: 0; box-sizing: border-box; pointer-events: none;
+    display: flex; flex-direction: column; justify-content: space-between;
+    padding: calc(1.6vmin + env(safe-area-inset-top, 0px)) calc(1.6vmin + env(safe-area-inset-right, 0px))
+             calc(1.6vmin + env(safe-area-inset-bottom, 0px)) calc(1.6vmin + env(safe-area-inset-left, 0px));
+    color: rgba(var(--led-rgb), .45);
+  }
+  .side.left { align-items: flex-start; }
+  .side.right { align-items: flex-end; text-align: right; }
 
-        .segment.active {
-            background-color: red;
-        }
+  .status { font-size: max(11px, 1.8vmin); line-height: 1.4; letter-spacing: .04em; white-space: pre-line; }
+  .status.warn { color: var(--warn); font-size: max(13px, 2.3vmin); font-weight: 600; animation: pulse 2s ease-in-out infinite; }
 
-        .hour-marker {
-            position: absolute;
-            width: 2.5%;
-            height: 2.4%;
-            background-color: red;
-            border-radius: 50%;
-            top: 50%;
-            left: 50%;
-            transform-origin: 50% 50%;
-        }
+  .onair {
+    display: none; font-weight: 800; font-size: 3.6vmin; letter-spacing: .14em; line-height: 1;
+    padding: .33em .6em; border-radius: .22em;
+    border: .1em solid rgba(255, 30, 30, .22); color: rgba(255, 30, 30, .22);
+  }
+  .onair.show { display: block; }
+  .onair.live { background: var(--onair); border-color: var(--onair); color: #000; box-shadow: 0 0 1.2em rgba(255, 30, 30, .6); }
 
-        .time-display {
-            position: absolute;
-            top: 55%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            font-family: 'DSEG7-Classic', monospace;
-            color: red;
-        }
+  .readout:empty { display: none; }
+  .readout .k { display: block; margin-bottom: .3em; font-size: max(11px, 1.8vmin); letter-spacing: .12em; color: rgba(var(--led-rgb), .55); }
+  .readout .d { font-family: "DSEG7", monospace; font-weight: bold; font-size: 4.4vmin; color: rgb(var(--led-rgb)); }
+  .readout.warn .d { color: var(--warn); }
+  .readout.over .d { color: var(--warn); animation: blink 1s steps(1) infinite; }
 
-        .time-display .time {
-            font-size: 17vmin;
-            letter-spacing: 0.5vmin;
-        }
+  @media (min-aspect-ratio: 3/2) {
+    .side { position: static; justify-content: center; gap: 5vmin; padding: 3vmin; min-width: 0; }
+    .side.left { align-items: flex-end; text-align: right; }
+    .side.left .readout { order: -1; }
+    .side.right { align-items: flex-start; text-align: left; }
+    .status { font-size: max(12px, min(2.2vmin, 1.1vw)); }
+    .status.warn { font-size: max(13px, min(2.6vmin, 1.3vw)); }
+    .onair { font-size: min(6.5vmin, 2.8vw); }
+    .readout .k { font-size: max(11px, min(2.4vmin, 1.1vw)); }
+    .readout .d { font-size: min(7vmin, 2.6vw); }
+  }
 
-        .time-display .seconds {
-            font-size: 15vmin;
-        }
+  @keyframes pulse { 50% { opacity: .45; } }
+  @keyframes blink { 50% { opacity: .15; } }
+  @media (prefers-reduced-motion: reduce) {
+    .status.warn, .readout.over .d { animation: none; }
+    .clock { transition: none; }
+  }
 
-        .custom-text {
-            position: absolute;
-            top: 75%;
-            left: 50%;
-            transform: translate(-50%, 0);
-            text-align: center;
-            color: red;
-            font-size: 6vmin;
-            font-family: monospace;
-        }
-
-        .sync-info {
-            position: absolute;
-            top: 1%;
-            left: 1%;
-            color: rgb(94, 0, 0);
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 2vmin;
-        }
-    </style>
+  .help {
+    position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    width: min(700px, 92vw); max-height: 88vh; overflow: auto; box-sizing: border-box;
+    padding: 24px 28px; border-radius: 10px;
+    background: rgba(12, 12, 12, .96); border: 1px solid #333; color: #ddd;
+    font-size: 14px; line-height: 1.5; cursor: auto; -webkit-user-select: text; user-select: text;
+  }
+  .help[hidden] { display: none; }
+  .help h2 { margin: 0 0 12px; font-size: 18px; color: #fff; }
+  .help h3 { margin: 18px 0 6px; font-size: 14px; color: #fff; }
+  .help table { border-collapse: collapse; width: 100%; }
+  .help td { padding: 3px 0; vertical-align: top; }
+  .help td:first-child { width: 36%; padding-right: 12px; }
+  .help code, .help kbd { font-family: ui-monospace, Consolas, monospace; font-size: 13px; color: #ffb3aa; }
+  .help kbd { border: 1px solid #555; border-radius: 4px; padding: 0 5px; }
+  .help p { margin: 6px 0; color: #aaa; }
+</style>
 </head>
 <body>
-    <div class="clock-container">
-        <div class="segments"></div>
-        <div class="time-display">
-            <div class="time">00:00</div>
-            <div class="seconds">00</div>
-        </div>
-        <div class="custom-text" id="customText">Your Custom Text</div>
-        <div class="sync-info" id="syncInfo">NTP Sync: Checking...</div>
+  <aside class="side left">
+    <div class="status" id="status"></div>
+    <div class="readout" id="tz2"></div>
+  </aside>
+
+  <main class="clock" id="clock">
+    <svg class="ring" viewBox="0 0 1000 1000" aria-hidden="true">
+      <defs>
+        <filter id="glow" x="-150%" y="-150%" width="400%" height="400%">
+          <feGaussianBlur stdDeviation="7" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <g id="secDots"></g>
+      <g id="hourDots"></g>
+    </svg>
+    <div class="center" role="timer" aria-live="off">
+      <div class="date"><span id="date"></span><span class="zone" id="zone"></span></div>
+      <div class="digits time"><span class="ghost">88:88</span><span class="lit" id="hm">00:00</span></div>
+      <div class="secrow">
+        <div class="digits secs"><span class="ghost">88</span><span class="lit" id="ss">00</span></div>
+        <span class="ampm" id="ampm"></span>
+      </div>
+      <div class="label" id="label"></div>
     </div>
+  </main>
 
-    <script>
-        const segmentsContainer = document.querySelector('.segments');
-        const timeDisplay = document.querySelector('.time');
-        const secondsDisplay = document.querySelector('.seconds');
-        const customTextDisplay = document.getElementById('customText');
-        const syncInfoDisplay = document.getElementById('syncInfo');
+  <aside class="side right">
+    <div class="onair" id="onair">ON AIR</div>
+    <div class="readout" id="timer"></div>
+  </aside>
 
-        const customText = "CUSTOM TEXT";
-        customTextDisplay.textContent = customText;
+  <div class="help" id="help" hidden>
+    <h2>Studio master clock</h2>
+    <table>
+      <tr><td><kbd>F</kbd> or double-click</td><td>Fullscreen</td></tr>
+      <tr><td><kbd>D</kbd></td><td>Dim the display</td></tr>
+      <tr><td><kbd>O</kbd></td><td>Toggle the ON AIR sign</td></tr>
+      <tr><td><kbd>T</kbd> / <kbd>R</kbd></td><td>Start or stop the timer / reset it</td></tr>
+      <tr><td><kbd>1</kbd>-<kbd>9</kbd> / <kbd>0</kbd></td><td>Load a 1-9 minute countdown / back to count-up</td></tr>
+      <tr><td><kbd>P</kbd></td><td>Toggle the hourly time pips (five short tones, one long on the hour)</td></tr>
+      <tr><td><kbd>S</kbd></td><td>Sync now</td></tr>
+      <tr><td><kbd>H</kbd> or <kbd>Esc</kbd></td><td>Show or hide this help</td></tr>
+    </table>
+    <h3>URL parameters</h3>
+    <table>
+      <tr><td><code>text=STUDIO%201</code></td><td>Label under the time, e.g. a call sign (empty hides it)</td></tr>
+      <tr><td><code>color=red</code></td><td>red, green, amber, blue, white or a hex value</td></tr>
+      <tr><td><code>utc</code></td><td>Main clock in UTC, local time in the second clock (ham radio)</td></tr>
+      <tr><td><code>tz=Europe/Zurich</code></td><td>Time zone of the main clock</td></tr>
+      <tr><td><code>tz2=UTC</code>, <code>tz2label=</code></td><td>Second clock with its own label</td></tr>
+      <tr><td><code>h12</code></td><td>12-hour display</td></tr>
+      <tr><td><code>lang=de-CH</code></td><td>Language of the date</td></tr>
+      <tr><td><code>date=0</code>, <code>zone=0</code></td><td>Hide the date or the zone abbreviation</td></tr>
+      <tr><td><code>pips</code></td><td>Hourly time pips (sound needs one click or key press first)</td></tr>
+      <tr><td><code>sync=/time</code></td><td>Time server (<code>timeapi</code> and <code>worldtimeapi</code> are public shortcuts)</td></tr>
+      <tr><td><code>interval=60</code>, <code>samples=4</code></td><td>Seconds between syncs, samples per burst</td></tr>
+      <tr><td><code>warn=500</code></td><td>Warn when this computer's clock is off by more than this many ms</td></tr>
+      <tr><td><code>countdown=300</code></td><td>Preload the timer as a countdown (seconds)</td></tr>
+      <tr><td><code>onair</code></td><td>Always show the ON AIR sign</td></tr>
+      <tr><td><code>events=...</code>, <code>ws=...</code></td><td>Remote control by Server-Sent Events or WebSocket</td></tr>
+      <tr><td><code>dim</code>, <code>shift=0</code></td><td>Start dimmed; turn off the anti-burn-in drift</td></tr>
+    </table>
+    <h3>Sync status</h3>
+    <p><b>Locked</b>: disciplined by the time server, +/- is the estimated worst-case error.
+       <b>Holdover</b>: the server is unreachable, the clock runs on its measured drift and the error bound grows.
+       <b>No sync</b>: the server was never reached, showing this computer's own clock.</p>
+  </div>
 
-        // Generate segments and hour markers
-        for (let i = 0; i < 60; i++) {
-            const segment = document.createElement('div');
-            segment.classList.add('segment');
-            segment.style.transform = `rotate(${i * 6}deg) translate(0, -45vmin)`;
-            segmentsContainer.appendChild(segment);
-        }
+<script>
+(() => {
+"use strict";
 
-        for (let i = 0; i < 12; i++) {
-            const hourMarker = document.createElement('div');
-            hourMarker.classList.add('hour-marker');
-            hourMarker.style.transform = `rotate(${i * 30 - 90}deg) translate(0, -42vmin)`;
-            segmentsContainer.appendChild(hourMarker);
-        }
+const $ = (id) => document.getElementById(id);
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const pad2 = (n) => String(n).padStart(2, "0");
+const sum = (xs) => xs.reduce((a, b) => a + b, 0);
+const setText = (el, text) => { if (el.textContent !== text) el.textContent = text; };
+const timeoutSignal = (ms) => (typeof AbortSignal.timeout === "function" ? AbortSignal.timeout(ms) : undefined);
 
-        const segments = document.querySelectorAll('.segment');
+// Configuration from the URL query string.
+const Config = (() => {
+  const q = new URLSearchParams(location.search);
+  const errors = [];
+  const str = (k, d = "") => (q.has(k) ? q.get(k).trim() : d);
+  const flag = (k, d = false) => (q.has(k) ? !/^(0|false|no|off)$/i.test(q.get(k)) : d);
+  const num = (k, d, lo, hi) => {
+    const v = Number(q.get(k));
+    return q.get(k) && Number.isFinite(v) ? clamp(v, lo, hi) : d;
+  };
+  const zone = (k) => {
+    const z = str(k);
+    if (!z) return undefined;
+    try { new Intl.DateTimeFormat("en", { timeZone: z }); return z; }
+    catch { errors.push(`unknown time zone "${z}"`); return undefined; }
+  };
+  const lang = (() => {
+    const l = str("lang", navigator.language || "en-GB");
+    try { new Intl.DateTimeFormat(l); return l; }
+    catch { errors.push(`unknown language "${l}"`); return "en-GB"; }
+  })();
 
-        function updateClock() {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = now.getSeconds();
+  const localZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const utc = flag("utc");
+  const tz2 = zone("tz2") ?? (utc && !q.has("tz2") ? localZone : undefined);
 
-            // Update time display
-            timeDisplay.textContent = `${hours}:${minutes}`;
-            secondsDisplay.textContent = String(seconds).padStart(2, '0');
+  const PRESETS = {
+    timeapi: "https://timeapi.io/api/time/current/zone?timeZone=UTC",
+    worldtimeapi: "https://worldtimeapi.org/api/timezone/Etc/UTC",
+  };
+  let sync = null;
+  const syncRaw = str("sync");
+  if (syncRaw && !/^(0|off|none)$/i.test(syncRaw)) {
+    try { sync = { url: new URL(PRESETS[syncRaw] ?? syncRaw, location.href), preset: syncRaw in PRESETS }; }
+    catch { errors.push(`invalid sync address "${syncRaw}"`); }
+  }
 
-            // Update segments
-            segments.forEach((segment, index) => {
-                segment.classList.toggle('active', index <= seconds);
-            });
+  const COLORS = { red: "#ff2a1a", green: "#25ff5c", amber: "#ffae00", blue: "#38a6ff", white: "#f4f4f4" };
+  const c = str("color").toLowerCase();
+  const hex = /^#?[0-9a-f]{6}$/.test(c) ? "#" + c.replace("#", "") : COLORS[c] ?? COLORS.red;
 
-            // Synchronize updates with system clock
-            const nextUpdate = 1000 - now.getMilliseconds();
-            setTimeout(updateClock, nextUpdate);
-        }
+  return Object.freeze({
+    text: str("text", "STUDIO 1"),
+    ledRgb: [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)).join(","),
+    h12: flag("h12"),
+    tz: utc ? "UTC" : zone("tz"),
+    tz2,
+    tz2label: str("tz2label"),
+    lang,
+    localZone,
+    showDate: flag("date", true),
+    showZone: flag("zone", true),
+    pips: flag("pips"),
+    sync,
+    interval: num("interval", 60, 10, 3600),
+    samples: Math.round(num("samples", 4, 1, 12)),
+    warnMs: num("warn", 500, 1, 3_600_000),
+    countdown: num("countdown", 0, 0, 86_400),
+    onair: flag("onair"),
+    events: str("events"),
+    ws: str("ws"),
+    dim: flag("dim"),
+    shift: flag("shift", true),
+    errors: Object.freeze(errors),
+  });
+})();
 
-        async function fetchNtpTime() {
-            try {
-                // Try WorldTimeAPI first
-                const response = await fetch('https://worldtimeapi.org/api/timezone/Etc/UTC');
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-                const data = await response.json();
+// Clock discipline. True time is modelled as epoch(p) = p + a + b * (p - p0) with p = performance.now(),
+// a monotonic clock that OS clock steps cannot touch. a is the offset, b the oscillator frequency error.
+class ClockDiscipline {
+  static STEP_MS = 200;          // corrections larger than this are stepped, smaller ones slewed
+  static SLEW_RATE = 0.05;       // slew speed, ms per ms
+  static MAX_FREQ = 500e-6;      // reject drift estimates beyond 500 ppm
+  static HISTORY = 16;
+  static HISTORY_SPAN = 30 * 60e3;
+  static MIN_FREQ_SPAN = 2 * 60e3;
+  static WANDER_KNOWN = 20e-6;   // holdover error growth with and without a drift estimate
+  static WANDER_UNKNOWN = 100e-6;
 
-                // WorldTimeAPI returns datetime in ISO 8601 format
-                const ntpTime = new Date(data.datetime);
-                const localTime = new Date();
-                const timeDiff = Math.abs(localTime - ntpTime);
+  #history = [];
+  #model = null;
+  #slew = 0;
+  #slewAt = 0;
+  steps = 0;
 
-                syncInfoDisplay.innerHTML = `NTP Sync: Success<br>Diff: ${timeDiff}ms<br>Timezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}`;
-            } catch (error) {
-                try {
-                    // Fallback to timeapi.io
-                    const response = await fetch('https://timeapi.io/api/time/current/zone?timeZone=UTC');
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}`);
-                    }
-                    const data = await response.json();
+  get locked() { return this.#model !== null; }
+  get model() { return this.#model; }
 
-                    const ntpTime = new Date(`${data.dateTime}Z`);
-                    const localTime = new Date();
-                    const timeDiff = Math.abs(localTime - ntpTime);
+  // Best estimate of UTC in Unix ms. Continuous and monotonic between steps.
+  now(p = performance.now()) {
+    return this.#model ? this.#raw(p) - this.#slewLeft(p) : Date.now();
+  }
 
-                    syncInfoDisplay.innerHTML = `NTP Sync: Success (fallback)<br>Diff: ${timeDiff}ms<br>Timezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}`;
-                } catch (fallbackError) {
-                    syncInfoDisplay.textContent = 'NTP Sync: Failed';
-                }
-            }
-        }
+  // Worst-case error in ms, growing while no fresh samples arrive.
+  errorBound(p = performance.now()) {
+    const m = this.#model;
+    if (!m) return Infinity;
+    const age = Math.max(0, p - this.#history.at(-1).m);
+    const wander = (m.freqKnown ? ClockDiscipline.WANDER_KNOWN : ClockDiscipline.WANDER_UNKNOWN) * age;
+    return m.err + wander + Math.abs(this.#slewLeft(p));
+  }
 
-        // Start the clock and fetch NTP time every 30 seconds
-        updateClock();
-        fetchNtpTime();
-        setInterval(fetchNtpTime, 30000);
-    </script>
+  // Feed one burst-filtered sample {m, offset, delay}. Returns how it was applied.
+  ingest(sample) {
+    const p = performance.now();
+    const wasLocked = this.locked;
+    const shown = this.now(p);
+
+    const cutoff = sample.m - ClockDiscipline.HISTORY_SPAN;
+    this.#history = [...this.#history, sample].filter((s) => s.m >= cutoff).slice(-ClockDiscipline.HISTORY);
+    this.#model = this.#fit();
+
+    const diff = this.#raw(p) - shown;
+    if (!wasLocked || Math.abs(diff) > ClockDiscipline.STEP_MS) {
+      this.#slew = 0;
+      if (wasLocked) this.steps++;
+      return { mode: wasLocked ? "step" : "lock", diff };
+    }
+    this.#slew = diff;          // the display continues from `shown` and converges
+    this.#slewAt = p;
+    return { mode: "slew", diff };
+  }
+
+  // Forget everything, e.g. after the machine slept and performance.now() may have paused.
+  reset() { this.#history = []; this.#model = null; this.#slew = 0; }
+
+  #raw(p) { const m = this.#model; return p + m.a + m.b * (p - m.p0); }
+
+  #slewLeft(p) {
+    if (!this.#slew) return 0;
+    const left = Math.abs(this.#slew) - (p - this.#slewAt) * ClockDiscipline.SLEW_RATE;
+    if (left <= 0) { this.#slew = 0; return 0; }
+    return Math.sign(this.#slew) * left;
+  }
+
+  // Weighted least squares of offset over time, weights favour low-delay samples.
+  #fit() {
+    const h = this.#history;
+    const last = h.at(-1);
+    const p0 = last.m, y0 = last.offset;   // centred on the newest sample for numerical stability
+    const w = h.map((s) => 1 / (s.delay + 1) ** 2);
+    const x = h.map((s) => s.m - p0);
+    const y = h.map((s) => s.offset - y0);
+    const W = sum(w);
+    const mx = sum(w.map((wi, i) => wi * x[i])) / W;
+    const my = sum(w.map((wi, i) => wi * y[i])) / W;
+
+    const span = last.m - h[0].m;
+    const freqKnown = h.length >= 3 && span >= ClockDiscipline.MIN_FREQ_SPAN;
+    let b = 0;
+    if (freqKnown) {
+      const sxx = sum(w.map((wi, i) => wi * (x[i] - mx) ** 2));
+      const sxy = sum(w.map((wi, i) => wi * (x[i] - mx) * (y[i] - my)));
+      if (sxx > 0) b = clamp(sxy / sxx, -ClockDiscipline.MAX_FREQ, ClockDiscipline.MAX_FREQ);
+    }
+    const jitter = Math.sqrt(sum(w.map((wi, i) => wi * (y[i] - my - b * (x[i] - mx)) ** 2)) / W);
+    const minDelay = Math.min(...h.map((s) => s.delay));
+    return { a: y0 + my - b * mx, b, p0, jitter, err: minDelay / 2 + jitter, freqKnown };
+  }
+}
+
+// Time server sampling.
+const parseIso = (s) => {
+  s = s.trim().replace(/(\.\d{3})\d+/, "$1");
+  if (!/(Z|[+-]\d\d:?\d\d)$/i.test(s)) s += "Z";
+  return Date.parse(s);
+};
+
+// Understands NTP-style {t1, t2} replies, plain epoch numbers and the common public APIs.
+function parseTimeResponse(body) {
+  let d;
+  try { d = JSON.parse(body); } catch { d = body.trim(); }
+  const ms = (n) => (n > 1e11 ? n : n * 1000);
+  if (typeof d === "number") return { t1: ms(d) };
+  if (typeof d === "string") return { t1: /^\d+(\.\d+)?$/.test(d) ? ms(+d) : parseIso(d) };
+  if (!d || typeof d !== "object") return { t1: NaN };
+  if (typeof d.t1 === "number") return { t1: d.t1, t2: typeof d.t2 === "number" ? d.t2 : d.t1, server: d };
+  for (const k of ["epoch_ms", "unixtime_ms", "ms", "t"]) if (typeof d[k] === "number") return { t1: ms(d[k]) };
+  for (const k of ["utc_datetime", "datetime", "dateTime", "iso"]) {
+    if (typeof d[k] === "string") { const t = parseIso(d[k]); if (Number.isFinite(t)) return { t1: t }; }
+  }
+  if (typeof d.unixtime === "number") return { t1: d.unixtime * 1000, coarse: true };
+  return { t1: NaN };
+}
+
+class Sampler {
+  #seq = 0;
+  constructor({ url, preset }) { this.url = url; this.bust = !preset; }
+
+  // One exchange, returns { m, offset, delay } on the performance.now() timeline.
+  async sample() {
+    const u = new URL(this.url);
+    if (this.bust) u.searchParams.set("_", String(++this.#seq));
+    const p0 = performance.now();
+    const res = await fetch(u, { cache: "no-store", signal: timeoutSignal(4000) });
+    const body = await res.text();
+    const p3 = performance.now();
+    if (!res.ok) throw new Error(`time server answered HTTP ${res.status}`);
+
+    const r = parseTimeResponse(body);
+    if (!Number.isFinite(r.t1)) throw new Error("time server sent an unreadable response");
+
+    // Resource Timing excludes DNS, TCP and TLS setup from the round trip.
+    // It needs same origin or a Timing-Allow-Origin header from the server.
+    let a = p0, b = p3;
+    const entry = performance.getEntriesByName(u.href, "resource").at(-1);
+    if (entry?.requestStart > 0 && entry.responseStart >= entry.requestStart) { a = entry.requestStart; b = entry.responseStart; }
+    performance.clearResourceTimings();
+
+    const t2 = r.t2 ?? r.t1;
+    return {
+      m: (a + b) / 2,
+      offset: ((r.t1 - a) + (t2 - b)) / 2,
+      delay: Math.max(0, b - a - (t2 - r.t1)) + (r.coarse ? 1000 : 0),
+      server: r.server ?? null,
+      coarse: !!r.coarse,
+    };
+  }
+}
+
+const describeError = (e) =>
+  e?.name === "TimeoutError" || e?.name === "AbortError" ? "time server did not answer within 4 s"
+  : e instanceof TypeError ? "time server unreachable or blocked (CORS)"
+  : e?.message || String(e);
+
+// Sync state: system (no server configured), acquiring, locked, holdover, freerun (server never reached).
+class SyncService {
+  state = "system";
+  lastError = "";
+  lastOkPerf = 0;
+  server = null;
+  coarse = false;
+  #sampler = null;
+  #timer = 0;
+  #busy = false;
+  #fails = 0;
+  #wallMinusPerf = Date.now() - performance.now();
+
+  constructor(cfg, discipline, onSync) {
+    this.cfg = cfg;
+    this.discipline = discipline;
+    this.onSync = onSync;
+    if (cfg.sync) { this.#sampler = new Sampler(cfg.sync); this.state = "acquiring"; }
+  }
+
+  start() { if (this.#sampler) this.#loop(); }
+
+  async #loop() {
+    clearTimeout(this.#timer);
+    await this.syncNow();
+    // Back off after failures. The 10 % jitter keeps many displays from polling in lock-step.
+    const base = this.#fails ? Math.min(this.cfg.interval, 5 * 2 ** Math.min(this.#fails - 1, 4)) : this.cfg.interval;
+    this.#timer = setTimeout(() => this.#loop(), base * 1000 * (0.9 + Math.random() * 0.2));
+  }
+
+  async syncNow() {
+    if (!this.#sampler || this.#busy) return;
+    this.#busy = true;
+    try {
+      await this.#sampler.sample().catch(() => {}); // warm-up opens the keep-alive connection
+      const burst = [];
+      let lastErr;
+      for (let i = 0; i < this.cfg.samples; i++) {
+        try { burst.push(await this.#sampler.sample()); } catch (e) { lastErr = e; }
+        if (i < this.cfg.samples - 1) await sleep(120);
+      }
+      if (!burst.length) throw lastErr;
+      const best = burst.reduce((a, b) => (b.delay < a.delay ? b : a));
+      const applied = this.discipline.ingest(best);
+      Object.assign(this, { server: best.server, coarse: best.coarse, lastError: "", lastOkPerf: performance.now(), state: "locked" });
+      this.#fails = 0;
+      this.onSync({ ...applied, sample: best });
+    } catch (e) {
+      this.#fails++;
+      this.lastError = describeError(e);
+      this.state = this.discipline.locked ? "holdover" : "freerun";
+    } finally {
+      this.#busy = false;
+    }
+  }
+
+  // Called every second: ages the state and catches sleep/resume or OS clock steps.
+  watch() {
+    if (this.state === "locked" && performance.now() - this.lastOkPerf > this.cfg.interval * 3000) this.state = "holdover";
+    const wmp = Date.now() - performance.now();
+    if (Math.abs(wmp - this.#wallMinusPerf) > 1000 && this.#sampler) {
+      this.discipline.reset();
+      this.state = "acquiring";
+      this.#loop();
+    }
+    this.#wallMinusPerf = wmp;
+  }
+}
+
+// Count-up timer or countdown.
+class Timer {
+  #acc = 0;
+  #t0 = null;
+  mode = "up";
+  duration = 0;
+
+  constructor(countdownSec) { if (countdownSec > 0) this.load(countdownSec); }
+  get running() { return this.#t0 !== null; }
+  get elapsed() { return this.#acc + (this.#t0 !== null ? performance.now() - this.#t0 : 0); }
+  start() { this.#t0 ??= performance.now(); }
+  stop() { if (this.#t0 !== null) { this.#acc += performance.now() - this.#t0; this.#t0 = null; } }
+  toggle() { this.running ? this.stop() : this.start(); }
+  reset() { this.#acc = 0; if (this.running) this.#t0 = performance.now(); }
+  load(sec) { this.stop(); this.#acc = 0; this.mode = sec > 0 ? "down" : "up"; this.duration = sec * 1000; }
+
+  command(c) {
+    if (typeof c === "string") {
+      ({ start: () => this.start(), stop: () => this.stop(), toggle: () => this.toggle(), reset: () => this.reset(), up: () => this.load(0) })[c]?.();
+    } else if (c && typeof c === "object" && Number.isFinite(c.countdown)) {
+      this.load(clamp(c.countdown, 0, 86_400));
+      if (c.start) this.start();
+    }
+  }
+
+  // What to show, or null while idle.
+  view() {
+    const e = this.elapsed;
+    if (this.mode === "up") {
+      if (!this.running && e === 0) return null;
+      return { label: this.running ? "TIMER" : "TIMER PAUSED", sec: Math.floor(e / 1000), neg: false, cls: "" };
+    }
+    const left = this.duration - e;
+    const over = left <= 0;
+    const sec = over ? Math.floor(-left / 1000) : Math.ceil(left / 1000); // shows 00:00:00 exactly at the end
+    const label = over ? "OVERRUN" : this.running ? "COUNTDOWN" : e ? "COUNTDOWN PAUSED" : "COUNTDOWN READY";
+    return { label, sec, neg: over && sec > 0, cls: over ? "over" : sec <= 10 ? "warn" : "" };
+  }
+}
+
+// Hourly time pips: five 100 ms tones at 55 to 59 s, a 500 ms tone on the hour.
+class Pips {
+  on = false;
+  #ctx = null;
+  #armed = 0;
+
+  constructor(on) { this.on = on; }
+  get muted() { return this.on && this.#ctx?.state !== "running"; }
+
+  // Browsers only start audio after a user gesture, so this runs from key and pointer handlers.
+  resume() {
+    if (!this.on) return;
+    this.#ctx ??= new (window.AudioContext || window.webkitAudioContext)();
+    if (this.#ctx.state !== "running") this.#ctx.resume().catch(() => {});
+  }
+
+  // Called once per second with the clock time and the displayed minute and second. Schedules the next second's tone.
+  schedule(t, minute, second) {
+    if (this.muted || !this.on || minute !== 59 || second < 54) return;
+    const next = Math.floor(t / 1000) + 1;
+    if (next === this.#armed) return;
+    this.#armed = next;
+    const ctx = this.#ctx;
+    const at = ctx.currentTime + (next * 1000 - t) / 1000;
+    const len = second === 59 ? 0.5 : 0.1;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.frequency.value = 1000;
+    gain.gain.setValueAtTime(0, at);
+    gain.gain.linearRampToValueAtTime(0.3, at + 0.005);
+    gain.gain.setValueAtTime(0.3, at + len - 0.005);
+    gain.gain.linearRampToValueAtTime(0, at + len);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(at);
+    osc.stop(at + len);
+  }
+}
+
+// Second ring and hour markers.
+const SVG_NS = "http://www.w3.org/2000/svg";
+
+class Dial {
+  #dots = [];
+  #lit = new Array(60).fill(false);
+  constructor() {
+    const dot = (parent, angle, r, cls) => {
+      const c = document.createElementNS(SVG_NS, "circle");
+      c.setAttribute("cx", (500 + r * Math.sin(angle)).toFixed(2));
+      c.setAttribute("cy", (500 - r * Math.cos(angle)).toFixed(2));
+      c.setAttribute("r", "13");
+      c.setAttribute("class", cls);
+      parent.appendChild(c);
+      return c;
+    };
+    for (let i = 0; i < 60; i++) this.#dots.push(dot($("secDots"), (i * Math.PI) / 30, 452, "sec"));
+    for (let i = 0; i < 12; i++) dot($("hourDots"), (i * Math.PI) / 6, 405, "hour");
+  }
+  set(second) {
+    for (let i = 0; i < 60; i++) {
+      const on = i <= second;
+      if (this.#lit[i] !== on) { this.#lit[i] = on; this.#dots[i].classList.toggle("on", on); }
+    }
+  }
+}
+
+function readout(el, label, digits, cls = "") {
+  el.className = "readout" + (cls ? " " + cls : "");
+  if (!label) { el.replaceChildren(); return; }
+  const k = el.querySelector(".k") ?? el.appendChild(Object.assign(document.createElement("span"), { className: "k" }));
+  const d = el.querySelector(".d") ?? el.appendChild(Object.assign(document.createElement("span"), { className: "d" }));
+  setText(k, label);
+  setText(d, digits);
+}
+
+const fmtHms = (s) => `${pad2(Math.floor(s / 3600))}:${pad2(Math.floor(s / 60) % 60)}:${pad2(s % 60)}`;
+const fmtMs = (ms) => (ms < 1 ? "<1 ms" : ms < 1000 ? `${Math.round(ms)} ms` : `${(ms / 1000).toFixed(2)} s`);
+const fmtAge = (s) => (s < 90 ? `${Math.round(s)} s` : s < 5400 ? `${Math.round(s / 60)} min` : `${(s / 3600).toFixed(1)} h`);
+const fmtPpm = (b) => `${b >= 0 ? "+" : "-"}${Math.abs(b * 1e6).toFixed(1)} ppm`;
+
+// Application.
+const cfg = Config;
+document.documentElement.style.setProperty("--led-rgb", cfg.ledRgb);
+document.body.classList.toggle("dim", cfg.dim);
+
+const el = {
+  hm: $("hm"), ss: $("ss"), ampm: $("ampm"), date: $("date"), zone: $("zone"), label: $("label"),
+  status: $("status"), onair: $("onair"), timer: $("timer"), tz2: $("tz2"), help: $("help"), clock: $("clock"),
+};
+el.label.textContent = cfg.text;
+
+let lastSecond = null;
+let lastDateKey = null;
+let lastTimerKey = null;
+let hintUntil = performance.now() + 8000;
+
+const discipline = new ClockDiscipline();
+const timer = new Timer(cfg.countdown);
+const dial = new Dial();
+const pips = new Pips(cfg.pips);
+const sync = new SyncService(cfg, discipline, () => {
+  // A time server may advertise its event stream, so remote control needs no configuration.
+  if (!cfg.events && typeof sync.server?.events === "string") remote.sse(new URL(sync.server.events, cfg.sync.url));
+  lastSecond = null;
+});
+
+const hms = (tz) => new Intl.DateTimeFormat("en-GB", { timeZone: tz, hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23" });
+const fmt = {
+  time: hms(cfg.tz),
+  date: new Intl.DateTimeFormat(cfg.lang, { timeZone: cfg.tz, weekday: "long", day: "numeric", month: "long", year: "numeric" }),
+  zone: new Intl.DateTimeFormat(cfg.lang, { timeZone: cfg.tz, timeZoneName: "short" }),
+  tz2: cfg.tz2 && hms(cfg.tz2),
+};
+const parts = (f, t) => Object.fromEntries(f.formatToParts(t).map((p) => [p.type, p.value]));
+const zoneName = cfg.tz || cfg.localZone;
+const cityOf = (z) => z.replace(/^Etc\//, "").split("/").pop().replace(/_/g, " ");
+const tz2Label = cfg.tz2 && (cfg.tz2label || cityOf(cfg.tz2)).toUpperCase();
+
+const tally = {
+  on: false,
+  set(v) {
+    this.on = !!v;
+    el.onair.classList.toggle("live", this.on);
+    el.onair.classList.toggle("show", this.on || cfg.onair || remote.connected);
+  },
+};
+
+// One command vocabulary for the keyboard, WebSocket and Server-Sent Events.
+function applyCommand(c) {
+  if (typeof c === "string") {
+    const m = c.trim().toUpperCase().match(/^(?:ON_?AIR\s*[:= ]\s*)?(1|ON|TRUE|0|OFF|FALSE)$/);
+    if (m) tally.set(["1", "ON", "TRUE"].includes(m[1]));
+    return;
+  }
+  if (!c || typeof c !== "object") return;
+  if ("onair" in c) tally.set(c.onair);
+  if (typeof c.text === "string") el.label.textContent = c.text.slice(0, 40);
+  if ("dim" in c) document.body.classList.toggle("dim", !!c.dim);
+  if ("timer" in c) timer.command(c.timer);
+  lastTimerKey = null;
+}
+
+const remote = {
+  connected: false,
+  source: null,
+  handle(raw) { let d = raw; try { d = JSON.parse(raw); } catch {} applyCommand(d); },
+  sse(url) {
+    if (this.source) return;
+    this.connected = true;
+    this.source = new EventSource(url);     // reconnects by itself
+    this.source.onmessage = (e) => this.handle(e.data);
+    tally.set(tally.on);
+  },
+  ws(url, attempt = 0) {
+    this.connected = true;
+    let sock;
+    try { sock = new WebSocket(url); } catch { return; }
+    sock.onopen = () => { attempt = 0; };
+    sock.onmessage = (e) => this.handle(String(e.data));
+    sock.onclose = () => {
+      const delay = Math.min(30_000, 1000 * 2 ** attempt) * (0.5 + Math.random() / 2);
+      setTimeout(() => this.ws(url, attempt + 1), delay);
+    };
+  },
+};
+tally.set(false);
+if (cfg.events) { try { remote.sse(new URL(cfg.events, cfg.sync?.url ?? location.href)); } catch {} }
+if (cfg.ws) remote.ws(cfg.ws);
+
+function renderStatus(p) {
+  const lines = [];
+  let warn = false;
+  switch (sync.state) {
+    case "system":
+      lines.push("System clock", "keep this computer synced via NTP");
+      break;
+    case "acquiring":
+      lines.push("Acquiring time...");
+      break;
+    case "freerun":
+      warn = true;
+      lines.push("NO SYNC", sync.lastError, "showing this computer's own clock");
+      break;
+    default: {
+      const m = discipline.model;
+      const err = fmtMs(discipline.errorBound(p));
+      if (sync.state === "locked") {
+        lines.push(`Locked  +/- ${err}`);
+      } else {
+        warn = true;
+        lines.push(`HOLDOVER  +/- ${err}`, `no sync for ${fmtAge((p - sync.lastOkPerf) / 1000)}`, sync.lastError);
+      }
+      const local = Date.now() - discipline.now(p);
+      lines.push(Math.abs(local) < 1 ? "this computer is spot on" : `this computer is ${fmtMs(Math.abs(local))} ${local > 0 ? "ahead" : "behind"}`);
+      if (m.freqKnown) lines.push(`drift ${fmtPpm(m.b)}, jitter ${fmtMs(m.jitter)}`);
+      if (Math.abs(local) > cfg.warnMs) { warn = true; lines.push("computer clock is off, display corrected"); }
+      if (sync.server?.synced === false) { warn = true; lines.push("the time server itself is not synchronised"); }
+      if (sync.server?.leap) lines.push(`leap second announced (${sync.server.leap})`);
+      if (sync.coarse) lines.push("server only sends whole seconds");
+    }
+  }
+  lines.push(zoneName);
+  if (pips.muted) lines.push("pips muted until you click or press a key");
+  for (const e of cfg.errors) { warn = true; lines.push(e); }
+  if (p < hintUntil) lines.push("press H for help");
+  setText(el.status, lines.filter(Boolean).join("\n"));
+  el.status.classList.toggle("warn", warn);
+}
+
+function render(t, p) {
+  const tp = parts(fmt.time, t);
+  let hh = tp.hour;
+  if (cfg.h12) {
+    const h = +tp.hour;
+    setText(el.ampm, h < 12 ? "AM" : "PM");
+    hh = String(h % 12 || 12).padStart(2, "!"); // "!" is a blank digit in DSEG
+  }
+  setText(el.hm, `${hh}:${tp.minute}`);
+  setText(el.ss, tp.second);
+  dial.set(+tp.second);
+  pips.schedule(t, +tp.minute, +tp.second);
+
+  const dateKey = Math.floor(t / 60_000);
+  if (dateKey !== lastDateKey) {
+    lastDateKey = dateKey;
+    if (cfg.showDate) setText(el.date, fmt.date.format(t).toLocaleUpperCase(cfg.lang));
+    if (cfg.showZone) setText(el.zone, parts(fmt.zone, t).timeZoneName.toUpperCase());
+  }
+  if (fmt.tz2) {
+    const q = parts(fmt.tz2, t);
+    readout(el.tz2, tz2Label, `${q.hour}:${q.minute}:${q.second}`);
+  }
+  renderStatus(p);
+}
+
+function renderTimer() {
+  const v = timer.view();
+  const key = v && `${v.label}|${v.sec}|${v.cls}`;
+  if (key === lastTimerKey) return;
+  lastTimerKey = key;
+  if (!v) readout(el.timer, "", "");
+  else readout(el.timer, v.label, (v.neg ? "-" : "") + fmtHms(v.sec), v.cls);
+}
+
+function tick() {
+  const p = performance.now();
+  const t = discipline.now(p);
+  const second = Math.floor(t / 1000);
+  if (second !== lastSecond) {
+    lastSecond = second;
+    sync.watch();
+    render(t, p);
+  }
+  renderTimer();
+}
+
+// requestAnimationFrame flips the digits within one frame of the true second,
+// the interval keeps the clock going when frames are throttled.
+const frame = () => { tick(); requestAnimationFrame(frame); };
+requestAnimationFrame(frame);
+setInterval(tick, 250);
+sync.start();
+
+// Display housekeeping: keep the screen on, fullscreen, hide the cursor, anti-burn-in.
+const wakeLock = {
+  sentinel: null,
+  async acquire() {
+    if (this.sentinel || !("wakeLock" in navigator) || document.visibilityState !== "visible") return;
+    try {
+      this.sentinel = await navigator.wakeLock.request("screen");
+      this.sentinel.addEventListener("release", () => { this.sentinel = null; });
+    } catch { /* needs a secure context and sometimes a user gesture */ }
+  },
+};
+wakeLock.acquire();
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState !== "visible") return;
+  wakeLock.acquire();
+  sync.syncNow();
+  lastSecond = null;
+});
+
+const toggleFullscreen = () =>
+  document.fullscreenElement ? document.exitFullscreen?.() : document.documentElement.requestFullscreen?.().catch(() => {});
+const toggleHelp = (show = el.help.hidden) => { el.help.hidden = !show; };
+
+const KEYS = {
+  f: toggleFullscreen,
+  d: () => applyCommand({ dim: !document.body.classList.contains("dim") }),
+  o: () => applyCommand({ onair: !tally.on }),
+  t: () => applyCommand({ timer: "toggle" }),
+  r: () => applyCommand({ timer: "reset" }),
+  0: () => applyCommand({ timer: "up" }),
+  p: () => { pips.on = !pips.on; pips.resume(); },
+  s: () => sync.syncNow(),
+  h: () => toggleHelp(),
+  "?": () => toggleHelp(),
+  escape: () => toggleHelp(false),
+};
+for (let n = 1; n <= 9; n++) KEYS[n] = () => applyCommand({ timer: { countdown: n * 60 } });
+
+const gesture = () => { wakeLock.acquire(); pips.resume(); };
+addEventListener("keydown", (e) => {
+  if (e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;
+  const fn = KEYS[e.key.toLowerCase()];
+  if (fn) { e.preventDefault(); fn(); }
+  gesture();
+});
+addEventListener("pointerdown", gesture);
+addEventListener("dblclick", toggleFullscreen);
+
+let idleTimer = 0;
+const wake = () => {
+  document.body.classList.remove("idle");
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(() => document.body.classList.add("idle"), 3000);
+};
+addEventListener("pointermove", wake);
+wake();
+
+// Anti-burn-in: move the dial by under a millimetre every five minutes.
+if (cfg.shift) {
+  setInterval(() => {
+    const r = () => (Math.random() * 1.6 - 0.8).toFixed(2);
+    el.clock.style.transform = `translate(${r()}vmin, ${r()}vmin)`;
+  }, 300_000);
+}
+
+// Inspect window.studioClock from the browser console when debugging.
+window.studioClock = Object.freeze({ cfg, discipline, sync, timer, pips, applyCommand });
+})();
+</script>
 </body>
 </html>
