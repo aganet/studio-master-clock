@@ -29,9 +29,11 @@
     -webkit-user-select: none; user-select: none;
   }
   body.idle, body.idle * { cursor: none !important; }
-  body.dim .clock, body.dim .side { filter: brightness(.33); }
+  body.dim .clock, body.dim .side, body.dim .zones { filter: brightness(.33); }
 
-  .clock { position: relative; width: 96vmin; height: 96vmin; transition: transform 3s ease; }
+  .clock { position: relative; width: 96vmin; height: 96vmin; container-type: size; transition: transform 3s ease; }
+  body.strip { grid-template-rows: minmax(0, 1fr) auto; }
+  body.strip .clock { width: min(96vmin, 100vh - 17vmin); height: min(96vmin, 100vh - 17vmin); }
   .ring { position: absolute; inset: 0; width: 100%; height: 100%; }
   .ring .sec { fill: rgba(var(--led-rgb), .12); }
   .ring .sec.on, .ring .hour { fill: rgb(var(--led-rgb)); filter: url(#glow); }
@@ -42,21 +44,21 @@
     color: rgb(var(--led-rgb));
   }
   .date {
-    display: flex; gap: 1.2em; max-width: 64vmin; margin-bottom: 2.4vmin;
-    font-size: 2.6vmin; letter-spacing: .08em; white-space: nowrap; color: rgba(var(--led-rgb), .7);
+    display: flex; gap: 1.2em; max-width: 64cqmin; margin-bottom: 2.4cqmin;
+    font-size: 2.6cqmin; letter-spacing: .08em; white-space: nowrap; color: rgba(var(--led-rgb), .7);
   }
   .date span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
   .date span:empty { display: none; }
   .date .zone { flex: none; color: rgb(var(--led-rgb)); font-weight: 600; }
   .digits { position: relative; display: inline-block; line-height: 1; font-family: "DSEG7", monospace; font-weight: bold; }
   .digits .ghost { position: absolute; left: 0; top: 0; color: rgba(var(--led-rgb), .07); }
-  .digits .lit { position: relative; text-shadow: 0 0 2vmin rgba(var(--led-rgb), .55); }
-  .time { font-size: 16vmin; letter-spacing: .4vmin; }
-  .secrow { position: relative; margin-top: 3vmin; }
-  .secs { font-size: 9.5vmin; }
-  .ampm { position: absolute; left: calc(100% + 1.5vmin); bottom: .3vmin; font-size: 2.8vmin; letter-spacing: .1em; }
+  .digits .lit { position: relative; text-shadow: 0 0 2cqmin rgba(var(--led-rgb), .55); }
+  .time { font-size: 16cqmin; letter-spacing: .4cqmin; }
+  .secrow { position: relative; margin-top: 3cqmin; }
+  .secs { font-size: 9.5cqmin; }
+  .ampm { position: absolute; left: calc(100% + 1.5cqmin); bottom: .3cqmin; font-size: 2.8cqmin; letter-spacing: .1em; }
   .label {
-    margin-top: 4vmin; max-width: 62vmin; font-size: 5vmin; letter-spacing: .12em; font-weight: 600;
+    margin-top: 4cqmin; max-width: 62cqmin; font-size: 5cqmin; letter-spacing: .12em; font-weight: 600;
     text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .label:empty, .ampm:empty { display: none; }
@@ -83,8 +85,19 @@
   .onair.show { display: block; }
   .onair.live { background: var(--onair); border-color: var(--onair); color: #000; box-shadow: 0 0 1.2em rgba(255, 30, 30, .6); }
 
+  .zones { display: flex; flex-direction: column; gap: 2vmin; align-items: inherit; }
+  .zones.strip {
+    grid-column: 1 / -1; flex-direction: row; justify-content: center; gap: 3vw; text-align: center;
+    padding: 1vmin 2vmin calc(2vmin + env(safe-area-inset-bottom, 0px)); color: rgba(var(--led-rgb), .45);
+  }
+  .zones.strip .readout .k { font-size: max(13px, min(2.8vmin, 1.4vw)); }
+  .zones.strip .readout .d { font-size: min(5.5vmin, 84vw / (var(--n) * var(--chars) * .85)); }
+  @media (max-aspect-ratio: 3/2) {
+    .zones.strip { flex-wrap: wrap; gap: 2vmin 6vw; }
+    .zones.strip .readout .d { font-size: min(5.5vmin, 84vw / (min(var(--n), 4) * var(--chars) * .85)); }
+  }
   .readout:empty { display: none; }
-  .readout .k { display: block; margin-bottom: .3em; font-size: max(11px, 1.8vmin); letter-spacing: .12em; color: rgba(var(--led-rgb), .55); }
+  .readout .k { display: block; margin-bottom: .25em; font-size: max(12px, 2.2vmin); font-weight: 600; letter-spacing: .14em; color: rgb(var(--led-rgb)); }
   .readout .d { font-family: "DSEG7", monospace; font-weight: bold; font-size: 4.4vmin; color: rgb(var(--led-rgb)); }
   .readout.warn .d { color: var(--warn); }
   .readout.over .d { color: var(--warn); animation: blink 1s steps(1) infinite; }
@@ -92,12 +105,12 @@
   @media (min-aspect-ratio: 3/2) {
     .side { position: static; justify-content: center; gap: 5vmin; padding: 3vmin; min-width: 0; }
     .side.left { align-items: flex-end; text-align: right; }
-    .side.left .readout { order: -1; }
+    .side.left .zones { order: -1; }
     .side.right { align-items: flex-start; text-align: left; }
     .status { font-size: max(12px, min(2.2vmin, 1.1vw)); }
     .status.warn { font-size: max(13px, min(2.6vmin, 1.3vw)); }
     .onair { font-size: min(6.5vmin, 2.8vw); }
-    .readout .k { font-size: max(11px, min(2.4vmin, 1.1vw)); }
+    .readout .k { font-size: max(13px, min(3vmin, 1.4vw)); }
     .readout .d { font-size: min(7vmin, 2.6vw); }
   }
 
@@ -129,7 +142,7 @@
 <body>
   <aside class="side left">
     <div class="status" id="status"></div>
-    <div class="readout" id="tz2"></div>
+    <div class="zones" id="zones"></div>
   </aside>
 
   <main class="clock" id="clock">
@@ -177,7 +190,8 @@
       <tr><td><code>color=red</code></td><td>red, green, amber, blue, white or a hex value</td></tr>
       <tr><td><code>utc</code></td><td>Main clock in UTC, local time in the second clock (ham radio)</td></tr>
       <tr><td><code>tz=Europe/Zurich</code></td><td>Time zone of the main clock</td></tr>
-      <tr><td><code>tz2=UTC</code>, <code>tz2label=</code></td><td>Second clock with its own label</td></tr>
+      <tr><td><code>zones=UTC,Asia/Tokyo:TOKYO</code></td><td>Extra clocks, up to 8, with optional labels. Four or more, or any number on a narrow screen, form a strip along the bottom</td></tr>
+      <tr><td><code>layout=strip</code>, <code>zoneseconds=0</code></td><td>Always use the strip, hide seconds in the extra clocks</td></tr>
       <tr><td><code>h12</code></td><td>12-hour display</td></tr>
       <tr><td><code>lang=de-CH</code></td><td>Language of the date</td></tr>
       <tr><td><code>date=0</code>, <code>zone=0</code></td><td>Hide the date or the zone abbreviation</td></tr>
@@ -232,7 +246,20 @@ const Config = (() => {
 
   const localZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const utc = flag("utc");
-  const tz2 = zone("tz2") ?? (utc && !q.has("tz2") ? localZone : undefined);
+  const cityOf = (z) => z.replace(/^Etc\//, "").split("/").pop().replace(/_/g, " ");
+
+  // zones=UTC,Asia/Tokyo:TOKYO (tz2=... is the single-clock form), ?utc alone adds the local zone
+  const zoneList = q.has("zones") ? str("zones").split(",")
+    : str("tz2") ? [str("tz2") + (str("tz2label") ? ":" + str("tz2label") : "")] : [];
+  if (utc && !zoneList.length) zoneList.push(localZone);
+  const zones = [];
+  for (const item of zoneList.slice(0, 8)) {
+    const [z, ...rest] = item.trim().split(":");
+    if (!z) continue;
+    try { new Intl.DateTimeFormat("en", { timeZone: z }); }
+    catch { errors.push(`unknown time zone "${z}"`); continue; }
+    zones.push({ tz: z, label: (rest.join(":").trim() || cityOf(z)).toUpperCase() });
+  }
 
   const PRESETS = {
     timeapi: "https://timeapi.io/api/time/current/zone?timeZone=UTC",
@@ -254,8 +281,9 @@ const Config = (() => {
     ledRgb: [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)).join(","),
     h12: flag("h12"),
     tz: utc ? "UTC" : zone("tz"),
-    tz2,
-    tz2label: str("tz2label"),
+    zones: Object.freeze(zones),
+    strip: str("layout").toLowerCase() === "strip" || zones.length > 3,
+    zoneSeconds: flag("zoneseconds", true),
     lang,
     localZone,
     showDate: flag("date", true),
@@ -628,9 +656,23 @@ document.body.classList.toggle("dim", cfg.dim);
 
 const el = {
   hm: $("hm"), ss: $("ss"), ampm: $("ampm"), date: $("date"), zone: $("zone"), label: $("label"),
-  status: $("status"), onair: $("onair"), timer: $("timer"), tz2: $("tz2"), help: $("help"), clock: $("clock"),
+  status: $("status"), onair: $("onair"), timer: $("timer"), zones: $("zones"), help: $("help"), clock: $("clock"),
 };
 el.label.textContent = cfg.text;
+el.zones.style.setProperty("--n", cfg.zones.length);
+el.zones.style.setProperty("--chars", cfg.zoneSeconds ? 8 : 5);
+
+// Extra clocks sit in the left panel, or in a strip along the bottom when there are many
+// or the screen is not wide enough for panels.
+const wideScreen = matchMedia("(min-aspect-ratio: 3/2)");
+function placeZones() {
+  const strip = cfg.strip || (cfg.zones.length > 1 && !wideScreen.matches);
+  document.body.classList.toggle("strip", strip);
+  el.zones.classList.toggle("strip", strip);
+  (strip ? document.body : document.querySelector(".side.left")).appendChild(el.zones);
+}
+placeZones();
+wideScreen.addEventListener("change", placeZones);
 
 let lastSecond = null;
 let lastDateKey = null;
@@ -648,16 +690,20 @@ const sync = new SyncService(cfg, discipline, () => {
 });
 
 const hms = (tz) => new Intl.DateTimeFormat("en-GB", { timeZone: tz, hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23" });
+const ymd = (tz) => new Intl.DateTimeFormat("en-GB", { timeZone: tz, year: "numeric", month: "numeric", day: "numeric" });
 const fmt = {
   time: hms(cfg.tz),
   date: new Intl.DateTimeFormat(cfg.lang, { timeZone: cfg.tz, weekday: "long", day: "numeric", month: "long", year: "numeric" }),
   zone: new Intl.DateTimeFormat(cfg.lang, { timeZone: cfg.tz, timeZoneName: "short" }),
-  tz2: cfg.tz2 && hms(cfg.tz2),
+  day: ymd(cfg.tz),
 };
 const parts = (f, t) => Object.fromEntries(f.formatToParts(t).map((p) => [p.type, p.value]));
+const dayNumber = (f, t) => { const p = parts(f, t); return Date.UTC(+p.year, +p.month - 1, +p.day) / 864e5; };
 const zoneName = cfg.tz || cfg.localZone;
-const cityOf = (z) => z.replace(/^Etc\//, "").split("/").pop().replace(/_/g, " ");
-const tz2Label = cfg.tz2 && (cfg.tz2label || cityOf(cfg.tz2)).toUpperCase();
+const zones = cfg.zones.map((z) => ({
+  ...z, time: hms(z.tz), day: ymd(z.tz), tag: "",
+  el: el.zones.appendChild(Object.assign(document.createElement("div"), { className: "readout" })),
+}));
 
 const tally = {
   on: false,
@@ -768,10 +814,13 @@ function render(t, p) {
     lastDateKey = dateKey;
     if (cfg.showDate) setText(el.date, fmt.date.format(t).toLocaleUpperCase(cfg.lang));
     if (cfg.showZone) setText(el.zone, parts(fmt.zone, t).timeZoneName.toUpperCase());
+    // mark zones whose calendar day differs from the main clock, e.g. "TOKYO +1"
+    const today = dayNumber(fmt.day, t);
+    for (const z of zones) { const d = dayNumber(z.day, t) - today; z.tag = d ? ` ${d > 0 ? "+" : ""}${d}` : ""; }
   }
-  if (fmt.tz2) {
-    const q = parts(fmt.tz2, t);
-    readout(el.tz2, tz2Label, `${q.hour}:${q.minute}:${q.second}`);
+  for (const z of zones) {
+    const q = parts(z.time, t);
+    readout(z.el, z.label + z.tag, cfg.zoneSeconds ? `${q.hour}:${q.minute}:${q.second}` : `${q.hour}:${q.minute}`);
   }
   renderStatus(p);
 }

@@ -22,13 +22,24 @@ I am sharing this project to help others who might also be interested in having 
 
 [DEMO](https://clock.aganet.gr)
 
+## Screenshots
+
+Ham radio mode, `?utc&text=M0JPK%20JN47`: UTC on the dial, local time beside it.
+
+![Ham radio mode](docs/ham-radio.png)
+
+World clock, six zones with `?zones=UTC,America/Los_Angeles:LA,America/New_York:NYC,Europe/London,Asia/Dubai,Asia/Tokyo`. Los Angeles is still on the previous day, hence "LA -1".
+
+![World clock strip](docs/world-clock.png)
+
 ## Features
 
 - Seven-segment LED digits (DSEG7 font, embedded, so the page works offline) with a 60-dot
   second ring and hour markers.
 - Date line with the time zone abbreviation (CET, UTC, ...), any IANA time zone, 12 or 24 hour.
-- Second clock in another zone, e.g. UTC next to local time. `?utc` puts UTC in the main
-  display and local time in the second clock, the usual ham radio setup.
+- Up to eight extra clocks in other zones, beside the dial or as a strip along the bottom
+  for big screens, each marked +1 or -1 when its calendar day differs. `?utc` puts UTC in the
+  main display and local time in the second clock, the usual ham radio setup.
 - Custom label under the time: studio name or call sign.
 - ON AIR sign, count-up timer and countdown with overrun, hourly time pips.
 - Remote control over Server-Sent Events or WebSocket: ON AIR, label, dim, timer.
@@ -47,6 +58,7 @@ through URL parameters, so a kiosk setup is just a bookmark:
 master-clock.html?text=STUDIO%201&tz2=UTC
 master-clock.html?utc&text=M0JPK%20JN47
 master-clock.html?color=amber&h12&lang=de-CH
+master-clock.html?zones=UTC,America/New_York:NYC,Europe/London,Asia/Dubai,Asia/Tokyo
 ```
 
 Press `H` on the clock for the full list.
@@ -72,7 +84,8 @@ Press `H` on the clock for the full list.
 | `color=red` | `red`, `green`, `amber`, `blue`, `white` or a hex value |
 | `utc` | Main clock in UTC, local time in the second clock |
 | `tz=Europe/Zurich` | Time zone of the main clock |
-| `tz2=UTC`, `tz2label=` | Second clock and its label |
+| `zones=UTC,Asia/Tokyo:TOKYO` | Extra clocks, up to 8, with optional labels after the colon. Four or more, or any number on a narrow screen, form a strip along the bottom. `tz2=UTC` is the single-clock form |
+| `layout=strip`, `zoneseconds=0` | Always use the strip, hide seconds in the extra clocks |
 | `h12` | 12-hour display |
 | `lang=de-CH` | Language of the date |
 | `date=0`, `zone=0` | Hide the date or the zone abbreviation |
