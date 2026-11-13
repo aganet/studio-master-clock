@@ -20,7 +20,7 @@ I am sharing this project to help others who might also be interested in having 
 
 ## Demo
 
-[DEMO](https://clock.aganet.gr)
+[aganet.github.io/studio-master-clock](https://aganet.github.io/studio-master-clock/master-clock.html?text=STUDIO%201), served from this repository by GitHub Pages. Add your own parameters to the URL.
 
 ## Screenshots
 
