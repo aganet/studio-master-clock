@@ -101,7 +101,7 @@ master-clock.html?text=HOME&night=22-6
 
 ![Night dimming](docs/night.png)
 
-Help overlay, press `H` on any clock.
+Help overlay, press `H` on any clock. `C` opens the settings panel.
 
 ![Help overlay](docs/help.png)
 
@@ -123,6 +123,8 @@ Help overlay, press `H` on any clock.
   use the corners. Screen wake lock and hidden cursor.
 - Screen care for 24/7 use: black background, pixel shift, scheduled night dimming and
   optional colour cycling to even out OLED wear.
+- Settings panel (key `C`) saved in the browser, for people who would rather not edit URLs.
+- Installs as an app on phones, tablets and desktops when served over http(s).
 - No dependencies, no build step, one file.
 
 ## Quick start
@@ -176,6 +178,7 @@ master-clock.html?dim
 | `1`-`9` / `0` | Load a 1-9 minute countdown / back to count-up |
 | `P` | Toggle the hourly time pips |
 | `S` | Sync now |
+| `C` | Settings panel |
 | `H` or `Esc` | Help |
 
 ### URL parameters
@@ -200,6 +203,29 @@ master-clock.html?dim
 | `events=...`, `ws=...` | Remote control endpoint |
 | `dim`, `night=22-6` | Start dimmed, or dim automatically between those hours |
 | `cycle=60`, `shift=0` | Change the LED colour every 60 minutes, turn off the pixel shift |
+
+## Settings panel
+
+Press `C` for a form with every option: label, colour, zones, 12-hour, night dimming,
+colour cycling, pips and so on. Save stores them in the browser and reloads the clock. They
+are used whenever the clock is opened without URL parameters, so a home user never has to
+type a URL. URL parameters always win when present, and "Reset to defaults" clears the
+saved settings.
+
+![Settings panel](docs/settings.png)
+
+## Install as an app
+
+When the clock is served over http(s), for example from the demo site or your own web
+server, browsers offer to install it:
+
+- Chrome and Edge on desktop or Android: the install icon in the address bar, or the browser
+  menu, then "Install app". It opens fullscreen without any browser chrome.
+- Safari on iPhone and iPad: Share, then "Add to Home Screen".
+
+The installed app keeps the URL it was installed from, parameters included. Settings saved
+with `C` work inside the app as well. Opening the file directly from disk works as a normal
+page, but browsers do not offer to install from `file://`.
 
 ## Time
 

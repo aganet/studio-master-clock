@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Studio Master Clock</title>
+<meta name="theme-color" content="#000000">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <!--
   Studio master clock in one file. Works offline: the DSEG7 font is embedded
   (SIL Open Font License 1.1, (c) keshikan). Press H on the clock for the keys
@@ -139,6 +143,16 @@
   .help code, .help kbd { font-family: ui-monospace, Consolas, monospace; font-size: 13px; color: #ffb3aa; }
   .help kbd { border: 1px solid #555; border-radius: 4px; padding: 0 5px; }
   .help p { margin: 6px 0; color: #aaa; }
+  .help .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; align-items: center; padding: 3px 0; }
+  .help input[type="text"], .help input[type="number"] {
+    width: 100%; box-sizing: border-box; padding: 5px 8px; font: inherit;
+    background: #1a1a1a; color: #eee; border: 1px solid #444; border-radius: 4px;
+  }
+  .help input[type="checkbox"] { width: 16px; height: 16px; justify-self: start; }
+  .help .buttons { display: flex; gap: 8px; margin-top: 14px; }
+  .help button { padding: 6px 14px; font: inherit; border-radius: 4px; border: 1px solid #555; background: #222; color: #eee; cursor: pointer; }
+  .help button[type="submit"] { background: #a11; border-color: #c33; }
+  .help .notice { color: var(--warn); }
 </style>
 </head>
 <body>
@@ -184,6 +198,7 @@
       <tr><td><kbd>1</kbd>-<kbd>9</kbd> / <kbd>0</kbd></td><td>Load a 1-9 minute countdown / back to count-up</td></tr>
       <tr><td><kbd>P</kbd></td><td>Toggle the hourly time pips (five short tones, one long on the hour)</td></tr>
       <tr><td><kbd>S</kbd></td><td>Sync now</td></tr>
+      <tr><td><kbd>C</kbd></td><td>Settings, saved in this browser</td></tr>
       <tr><td><kbd>H</kbd> or <kbd>Esc</kbd></td><td>Show or hide this help</td></tr>
     </table>
     <h3>URL parameters</h3>
@@ -213,6 +228,18 @@
        <b>No sync</b>: the server was never reached, showing this computer's own clock.</p>
   </div>
 
+  <form class="help" id="settings" hidden>
+    <h2>Settings</h2>
+    <p>Saved in this browser and used whenever the clock is opened without URL parameters.</p>
+    <p class="notice" id="settingsNotice" hidden>This page was opened with URL parameters, which take priority. Saving switches to the saved settings.</p>
+    <div id="settingsFields"></div>
+    <div class="buttons">
+      <button type="submit">Save and apply</button>
+      <button type="button" id="settingsReset">Reset to defaults</button>
+      <button type="button" id="settingsClose">Close</button>
+    </div>
+  </form>
+
 <script>
 (() => {
 "use strict";
@@ -226,8 +253,12 @@ const setText = (el, text) => { if (el.textContent !== text) el.textContent = te
 const timeoutSignal = (ms) => (typeof AbortSignal.timeout === "function" ? AbortSignal.timeout(ms) : undefined);
 
 // Configuration from the URL query string.
+const SETTINGS_KEY = "studioClock.settings";
+const savedSettings = (() => { try { return localStorage.getItem(SETTINGS_KEY) || ""; } catch { return ""; } })();
+const fromUrl = location.search.length > 1;
+
 const Config = (() => {
-  const q = new URLSearchParams(location.search);
+  const q = new URLSearchParams(fromUrl ? location.search : savedSettings);
   const errors = [];
   const str = (k, d = "") => (q.has(k) ? q.get(k).trim() : d);
   const flag = (k, d = false) => (q.has(k) ? !/^(0|false|no|off)$/i.test(q.get(k)) : d);
@@ -320,6 +351,7 @@ const Config = (() => {
     ws: str("ws"),
     dim: flag("dim"),
     shift: flag("shift", true),
+    fromUrl,
     errors: Object.freeze(errors),
   });
 })();
@@ -815,7 +847,7 @@ function renderStatus(p) {
   lines.push(zoneName);
   if (pips.muted) lines.push("pips muted until you click or press a key");
   for (const e of cfg.errors) { warn = true; lines.push(e); }
-  if (p < hintUntil) lines.push("press H for help");
+  if (p < hintUntil) lines.push("press H for help, C for settings");
   setText(el.status, lines.filter(Boolean).join("\n"));
   el.status.classList.toggle("warn", warn);
 }
@@ -907,7 +939,89 @@ document.addEventListener("visibilitychange", () => {
 
 const toggleFullscreen = () =>
   document.fullscreenElement ? document.exitFullscreen?.() : document.documentElement.requestFullscreen?.().catch(() => {});
-const toggleHelp = (show = el.help.hidden) => { el.help.hidden = !show; };
+const panels = { help: el.help, settings: $("settings") };
+const showPanel = (name) => { for (const [k, p] of Object.entries(panels)) p.hidden = k !== name; };
+const togglePanel = (name) => showPanel(panels[name].hidden ? name : null);
+
+// Settings form: each field maps to a URL parameter, stored as a query string in localStorage.
+const FIELDS = [
+  { h: "Display" },
+  { k: "text", label: "Label under the time", type: "text", ph: "STUDIO 1 or a call sign" },
+  { k: "color", label: "Colour", type: "text", ph: "red, green, amber, blue, white or hex", list: ["red", "green", "amber", "blue", "white"] },
+  { k: "h12", label: "12-hour display", type: "flag" },
+  { k: "lang", label: "Date language", type: "text", ph: navigator.language },
+  { k: "date", label: "Show the date", type: "flag", on: true },
+  { k: "zone", label: "Show the zone abbreviation", type: "flag", on: true },
+  { k: "onair", label: "Always show the ON AIR sign", type: "flag" },
+  { k: "countdown", label: "Preload a countdown (seconds)", type: "number" },
+  { k: "pips", label: "Hourly time pips", type: "flag" },
+  { h: "Clocks" },
+  { k: "utc", label: "UTC on the dial (ham radio)", type: "flag" },
+  { k: "tz", label: "Main time zone", type: "text", ph: cfg.localZone, list: Intl.supportedValuesOf?.("timeZone") },
+  { k: "zones", label: "Extra clocks", type: "text", ph: "UTC, Asia/Tokyo:TOKYO (0 hides)" },
+  { k: "zoneseconds", label: "Seconds in the extra clocks", type: "flag", on: true },
+  { k: "layout", label: "Always put the extra clocks in a strip", type: "flag", val: "strip" },
+  { h: "Screen care" },
+  { k: "night", label: "Dim at night, from-to hours", type: "text", ph: "22-6" },
+  { k: "dim", label: "Start dimmed", type: "flag" },
+  { k: "cycle", label: "Change colour every (minutes)", type: "number", ph: "0 = never" },
+  { k: "shift", label: "Pixel shift against burn-in", type: "flag", on: true },
+  { h: "Time sync" },
+  { k: "sync", label: "Time server", type: "text", ph: "timeapi, worldtimeapi or a URL", list: ["timeapi", "worldtimeapi"] },
+  { k: "interval", label: "Seconds between syncs", type: "number", ph: "60" },
+  { k: "samples", label: "Samples per sync", type: "number", ph: "4" },
+  { k: "warn", label: "Warn if this computer is off by more than (ms)", type: "number", ph: "500" },
+  { h: "Remote control" },
+  { k: "events", label: "Server-Sent Events URL", type: "text", ph: "http://host/events" },
+  { k: "ws", label: "WebSocket URL", type: "text", ph: "ws://host:port" },
+];
+const settingsForm = panels.settings;
+{
+  const current = new URLSearchParams(cfg.fromUrl ? location.search : savedSettings);
+  const fields = $("settingsFields");
+  for (const f of FIELDS) {
+    if (f.h) { fields.appendChild(document.createElement("h3")).textContent = f.h; continue; }
+    const row = fields.appendChild(document.createElement("label"));
+    row.className = "row";
+    row.appendChild(document.createElement("span")).textContent = f.label;
+    const input = row.appendChild(document.createElement("input"));
+    input.name = f.k;
+    if (f.type === "flag") {
+      input.type = "checkbox";
+      input.checked = f.val ? current.get(f.k) === f.val
+        : current.has(f.k) ? !/^(0|false|no|off)$/i.test(current.get(f.k)) : !!f.on;
+    } else {
+      input.type = f.type;
+      input.placeholder = f.ph ?? "";
+      input.value = current.get(f.k) ?? "";
+      if (f.list?.length) {
+        const dl = row.appendChild(document.createElement("datalist"));
+        dl.id = "list-" + f.k;
+        for (const v of f.list) dl.appendChild(document.createElement("option")).value = v;
+        input.setAttribute("list", dl.id);
+      }
+    }
+  }
+  $("settingsNotice").hidden = !cfg.fromUrl;
+  const apply = (value) => {
+    try { value === null ? localStorage.removeItem(SETTINGS_KEY) : localStorage.setItem(SETTINGS_KEY, value); } catch {}
+    location.href = location.pathname;
+  };
+  settingsForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const q = new URLSearchParams();
+    for (const f of FIELDS) {
+      if (f.h) continue;
+      const input = settingsForm.elements[f.k];
+      if (f.val) { if (input.checked) q.set(f.k, f.val); }
+      else if (f.type === "flag") { if (input.checked !== !!f.on) q.set(f.k, input.checked ? "1" : "0"); }
+      else if (input.value.trim() || f.k === "text") q.set(f.k, input.value.trim());
+    }
+    apply(q.toString());
+  });
+  $("settingsReset").addEventListener("click", () => apply(null));
+  $("settingsClose").addEventListener("click", () => showPanel(null));
+}
 
 const KEYS = {
   f: toggleFullscreen,
@@ -918,21 +1032,24 @@ const KEYS = {
   0: () => applyCommand({ timer: "up" }),
   p: () => { pips.on = !pips.on; pips.resume(); },
   s: () => sync.syncNow(),
-  h: () => toggleHelp(),
-  "?": () => toggleHelp(),
-  escape: () => toggleHelp(false),
+  c: () => togglePanel("settings"),
+  h: () => togglePanel("help"),
+  "?": () => togglePanel("help"),
+  escape: () => showPanel(null),
 };
 for (let n = 1; n <= 9; n++) KEYS[n] = () => applyCommand({ timer: { countdown: n * 60 } });
 
 const gesture = () => { wakeLock.acquire(); pips.resume(); };
+const inForm = (e) => e.target instanceof Element && e.target.closest("form");
 addEventListener("keydown", (e) => {
   if (e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;
+  if (inForm(e)) { if (e.key === "Escape") showPanel(null); return; }
   const fn = KEYS[e.key.toLowerCase()];
   if (fn) { e.preventDefault(); fn(); }
   gesture();
 });
 addEventListener("pointerdown", gesture);
-addEventListener("dblclick", toggleFullscreen);
+addEventListener("dblclick", (e) => { if (!inForm(e)) toggleFullscreen(); });
 
 let idleTimer = 0;
 const wake = () => {
@@ -950,6 +1067,43 @@ if (cfg.shift) {
     el.clock.style.transform = `translate(${r()}vmin, ${r()}vmin)`;
   }, 300_000);
 }
+
+// Install as an app: the manifest and icons are built at runtime so the page stays one file.
+// Browsers only offer installation over http(s), not from a local file.
+async function installManifest() {
+  if (!/^https?:$/.test(location.protocol)) return;
+  await document.fonts.load('bold 100px "DSEG7"').catch(() => {});
+  const icon = (size) => {
+    const c = Object.assign(document.createElement("canvas"), { width: size, height: size });
+    const ctx = c.getContext("2d");
+    const mid = size / 2;
+    ctx.fillStyle = "#000";
+    ctx.beginPath(); ctx.roundRect(0, 0, size, size, size * 0.18); ctx.fill();
+    ctx.fillStyle = `rgb(${cfg.ledRgb})`;
+    for (let i = 0; i < 60; i++) {
+      const a = (i * Math.PI) / 30, r = i % 5 ? size * 0.013 : size * 0.022;
+      ctx.beginPath(); ctx.arc(mid + Math.sin(a) * size * 0.43, mid - Math.cos(a) * size * 0.43, r, 0, 2 * Math.PI); ctx.fill();
+    }
+    ctx.font = `bold ${size * 0.2}px "DSEG7", monospace`;
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText("12:00", mid, mid);
+    return c.toDataURL("image/png");
+  };
+  const manifest = {
+    name: "Studio Master Clock", short_name: "Clock", start_url: location.href,
+    display: "fullscreen", orientation: "any", background_color: "#000000", theme_color: "#000000",
+    icons: [192, 512].map((s) => ({ src: icon(s), sizes: `${s}x${s}`, type: "image/png", purpose: "any" })),
+  };
+  const link = document.createElement("link");
+  link.rel = "manifest";
+  link.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], { type: "application/manifest+json" }));
+  document.head.appendChild(link);
+  const apple = document.createElement("link");
+  apple.rel = "apple-touch-icon";
+  apple.href = manifest.icons[0].src;
+  document.head.appendChild(apple);
+}
+installManifest();
 
 // Inspect window.studioClock from the browser console when debugging.
 window.studioClock = Object.freeze({ cfg, discipline, sync, timer, pips, applyCommand });
