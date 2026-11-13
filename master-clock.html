@@ -35,6 +35,7 @@
   body.strip { grid-template-rows: minmax(0, 1fr) auto; }
   body.strip .clock { width: min(96vmin, 100vh - 17vmin); height: min(96vmin, 100vh - 17vmin); }
   .ring { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .ring .sec, .ring .hour, .center, .side, .zones, .readout .d { transition: fill 2s, color 2s; }
   .ring .sec { fill: rgba(var(--led-rgb), .12); }
   .ring .sec.on, .ring .hour { fill: rgb(var(--led-rgb)); filter: url(#glow); }
 
@@ -118,7 +119,7 @@
   @keyframes blink { 50% { opacity: .15; } }
   @media (prefers-reduced-motion: reduce) {
     .status.warn, .readout.over .d { animation: none; }
-    .clock { transition: none; }
+    .clock, .ring .sec, .ring .hour, .center, .side, .zones, .readout .d { transition: none; }
   }
 
   .help {
@@ -188,9 +189,9 @@
     <table>
       <tr><td><code>text=STUDIO%201</code></td><td>Label under the time, e.g. a call sign (empty hides it)</td></tr>
       <tr><td><code>color=red</code></td><td>red, green, amber, blue, white or a hex value</td></tr>
-      <tr><td><code>utc</code></td><td>Main clock in UTC, local time in the second clock (ham radio)</td></tr>
+      <tr><td><code>utc</code></td><td>Main clock in UTC, local time in the extra clock (ham radio)</td></tr>
       <tr><td><code>tz=Europe/Zurich</code></td><td>Time zone of the main clock</td></tr>
-      <tr><td><code>zones=UTC,Asia/Tokyo:TOKYO</code></td><td>Extra clocks, up to 8, with optional labels. Four or more, or any number on a narrow screen, form a strip along the bottom</td></tr>
+      <tr><td><code>zones=UTC,Asia/Tokyo:TOKYO</code></td><td>Extra clocks, up to 8, with optional labels. UTC is shown by default, <code>zones=0</code> hides it. Four or more, or any number on a narrow screen, form a strip along the bottom</td></tr>
       <tr><td><code>layout=strip</code>, <code>zoneseconds=0</code></td><td>Always use the strip, hide seconds in the extra clocks</td></tr>
       <tr><td><code>h12</code></td><td>12-hour display</td></tr>
       <tr><td><code>lang=de-CH</code></td><td>Language of the date</td></tr>
@@ -202,7 +203,8 @@
       <tr><td><code>countdown=300</code></td><td>Preload the timer as a countdown (seconds)</td></tr>
       <tr><td><code>onair</code></td><td>Always show the ON AIR sign</td></tr>
       <tr><td><code>events=...</code>, <code>ws=...</code></td><td>Remote control by Server-Sent Events or WebSocket</td></tr>
-      <tr><td><code>dim</code>, <code>shift=0</code></td><td>Start dimmed; turn off the anti-burn-in drift</td></tr>
+      <tr><td><code>dim</code>, <code>night=22-6</code></td><td>Start dimmed; dim automatically between those hours</td></tr>
+      <tr><td><code>cycle=60</code>, <code>shift=0</code></td><td>Change the LED colour every 60 minutes to even out OLED wear; turn off the pixel shift</td></tr>
     </table>
     <h3>Sync status</h3>
     <p><b>Locked</b>: disciplined by the time server, +/- is the estimated worst-case error.
@@ -248,10 +250,13 @@ const Config = (() => {
   const utc = flag("utc");
   const cityOf = (z) => z.replace(/^Etc\//, "").split("/").pop().replace(/_/g, " ");
 
-  // zones=UTC,Asia/Tokyo:TOKYO (tz2=... is the single-clock form), ?utc alone adds the local zone
+  // zones=UTC,Asia/Tokyo:TOKYO (tz2=... is the single-clock form), zones=0 hides them.
+  // By default UTC is shown, or local time when the main clock is already UTC.
+  const mainTz = utc ? "UTC" : zone("tz");
   const zoneList = q.has("zones") ? str("zones").split(",")
-    : str("tz2") ? [str("tz2") + (str("tz2label") ? ":" + str("tz2label") : "")] : [];
-  if (utc && !zoneList.length) zoneList.push(localZone);
+    : str("tz2") ? [str("tz2") + (str("tz2label") ? ":" + str("tz2label") : "")]
+    : [/^(UTC|Etc\/UTC)$/i.test(mainTz || "") ? localZone : "UTC"];
+  if (/^(0|none|off)$/i.test(zoneList.join(""))) zoneList.length = 0;
   const zones = [];
   for (const item of zoneList.slice(0, 8)) {
     const [z, ...rest] = item.trim().split(":");
@@ -273,14 +278,29 @@ const Config = (() => {
   }
 
   const COLORS = { red: "#ff2a1a", green: "#25ff5c", amber: "#ffae00", blue: "#38a6ff", white: "#f4f4f4" };
+  const toRgb = (hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)).join(",");
   const c = str("color").toLowerCase();
   const hex = /^#?[0-9a-f]{6}$/.test(c) ? "#" + c.replace("#", "") : COLORS[c] ?? COLORS.red;
+  // colour cycling starts from the configured colour, then the other presets
+  const palette = [hex, ...Object.values(COLORS).filter((h) => h !== hex)].map(toRgb);
+
+  // night=22-6 dims the display between those hours
+  let night = null;
+  const nightRaw = str("night");
+  if (nightRaw) {
+    const m = nightRaw.match(/^(\d{1,2})-(\d{1,2})$/);
+    if (m && +m[1] < 24 && +m[2] < 24 && m[1] !== m[2]) night = { from: +m[1], to: +m[2] };
+    else errors.push(`night should look like 22-6, not "${nightRaw}"`);
+  }
 
   return Object.freeze({
     text: str("text", "STUDIO 1"),
-    ledRgb: [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)).join(","),
+    ledRgb: palette[0],
+    palette,
+    cycle: num("cycle", 0, 1, 1440),
+    night,
     h12: flag("h12"),
-    tz: utc ? "UTC" : zone("tz"),
+    tz: mainTz,
     zones: Object.freeze(zones),
     strip: str("layout").toLowerCase() === "strip" || zones.length > 3,
     zoneSeconds: flag("zoneseconds", true),
@@ -677,6 +697,7 @@ wideScreen.addEventListener("change", placeZones);
 let lastSecond = null;
 let lastDateKey = null;
 let lastTimerKey = null;
+let lastNight = null;
 let hintUntil = performance.now() + 8000;
 
 const discipline = new ClockDiscipline();
@@ -812,6 +833,15 @@ function render(t, p) {
   const dateKey = Math.floor(t / 60_000);
   if (dateKey !== lastDateKey) {
     lastDateKey = dateKey;
+    if (cfg.cycle) {
+      const i = Math.floor(t / (cfg.cycle * 60_000)) % cfg.palette.length;
+      document.documentElement.style.setProperty("--led-rgb", cfg.palette[i]);
+    }
+    if (cfg.night) {
+      const h = +tp.hour, { from, to } = cfg.night;
+      const night = from < to ? h >= from && h < to : h >= from || h < to;
+      if (night !== lastNight) { lastNight = night; document.body.classList.toggle("dim", night); }
+    }
     if (cfg.showDate) setText(el.date, fmt.date.format(t).toLocaleUpperCase(cfg.lang));
     if (cfg.showZone) setText(el.zone, parts(fmt.zone, t).timeZoneName.toUpperCase());
     // mark zones whose calendar day differs from the main clock, e.g. "TOKYO +1"
@@ -910,10 +940,10 @@ const wake = () => {
 addEventListener("pointermove", wake);
 wake();
 
-// Anti-burn-in: move the dial by under a millimetre every five minutes.
+// Anti-burn-in: move the dial a few millimetres every five minutes.
 if (cfg.shift) {
   setInterval(() => {
-    const r = () => (Math.random() * 1.6 - 0.8).toFixed(2);
+    const r = () => (Math.random() * 3 - 1.5).toFixed(2);
     el.clock.style.transform = `translate(${r()}vmin, ${r()}vmin)`;
   }, 300_000);
 }
