@@ -14,7 +14,9 @@ This project is highly versatile and can be used in various ways:
 
 I am sharing this project to help others who might also be interested in having a similar clock. Feel free to use, customize, or contribute to its development!
 
-![master-clock](https://github.com/user-attachments/assets/877a2fba-d43a-4280-a8dc-6d10175b1404)
+
+<img width="4424" height="2312" alt="clock" src="https://github.com/user-attachments/assets/99b6e4f6-f230-4938-8c2b-eba2f3ed724a" />
+
 
 ## Demo
 
