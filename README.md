@@ -58,7 +58,7 @@ master-clock.html?text=NEWSROOM&zones=UTC,America/Los_Angeles:LA,America/New_Yor
 
 ![World clock strip](docs/world-clock.png)
 
-Portrait screen: the extra clocks move to the bottom automatically.
+Portrait screen: the extra clocks move to the bottom automatically, two per row.
 
 ```
 master-clock.html?zones=UTC,America/New_York,Asia/Tokyo,Australia/Sydney

@@ -33,7 +33,7 @@
 
   .clock { position: relative; width: 96vmin; height: 96vmin; container-type: size; transition: transform 3s ease; }
   body.strip { grid-template-rows: minmax(0, 1fr) auto; }
-  body.strip .clock { width: min(96vmin, 100vh - 17vmin); height: min(96vmin, 100vh - 17vmin); }
+  body.strip .clock { width: min(96vmin, 100vh - var(--strip-h, 17vmin) - 2vmin); height: min(96vmin, 100vh - var(--strip-h, 17vmin) - 2vmin); }
   .ring { position: absolute; inset: 0; width: 100%; height: 100%; }
   .ring .sec, .ring .hour, .center, .side, .zones, .readout .d { transition: fill 2s, color 2s; }
   .ring .sec { fill: rgba(var(--led-rgb), .12); }
@@ -94,8 +94,9 @@
   .zones.strip .readout .k { font-size: max(13px, min(2.8vmin, 1.4vw)); }
   .zones.strip .readout .d { font-size: min(5.5vmin, 84vw / (var(--n) * var(--chars) * .85)); }
   @media (max-aspect-ratio: 3/2) {
-    .zones.strip { flex-wrap: wrap; gap: 2vmin 6vw; }
-    .zones.strip .readout .d { font-size: min(5.5vmin, 84vw / (min(var(--n), 4) * var(--chars) * .85)); }
+    .zones.strip { flex-wrap: wrap; gap: 3vmin 8vw; }
+    .zones.strip .readout .k { font-size: max(14px, 3vmin); }
+    .zones.strip .readout .d { font-size: min(8vmin, 84vw / (min(var(--n), 2) * var(--chars) * .85)); }
   }
   .readout:empty { display: none; }
   .readout .k { display: block; margin-bottom: .25em; font-size: max(12px, 2.2vmin); font-weight: 600; letter-spacing: .14em; color: rgb(var(--led-rgb)); }
@@ -693,6 +694,8 @@ function placeZones() {
 }
 placeZones();
 wideScreen.addEventListener("change", placeZones);
+// the dial gives up exactly the height the strip takes
+new ResizeObserver(() => document.body.style.setProperty("--strip-h", el.zones.offsetHeight + "px")).observe(el.zones);
 
 let lastSecond = null;
 let lastDateKey = null;
