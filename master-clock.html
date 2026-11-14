@@ -41,7 +41,7 @@
   .ring { position: absolute; inset: 0; width: 100%; height: 100%; }
   body.fade .ring .sec, body.fade .ring .hour, body.fade .center, body.fade .side, body.fade .zones, body.fade .readout .d { transition: fill 2s, color 2s; }
   .ring .sec { fill: rgba(var(--led-rgb), .07); }
-  .ring .sec.on, .ring .hour { fill: rgb(var(--led-rgb)); filter: url(#glow); }
+  .ring .sec.on, .ring .hour { fill: rgb(var(--led-rgb)); }
 
   .center {
     position: absolute; inset: 0;
@@ -57,7 +57,7 @@
   .date .zone { flex: none; color: rgb(var(--led-rgb)); font-weight: 600; }
   .digits { position: relative; display: inline-block; line-height: 1; font-family: "DSEG7", monospace; font-weight: bold; }
   .digits .ghost { position: absolute; left: 0; top: 0; color: rgba(var(--led-rgb), .07); }
-  .digits .lit { position: relative; text-shadow: 0 0 2cqmin rgba(var(--led-rgb), .55); }
+  .digits .lit { position: relative; text-shadow: 0 0 .4cqmin rgba(var(--led-rgb), .4); }
   .time { font-size: 16cqmin; letter-spacing: .4cqmin; }
   .secrow { position: relative; margin-top: 3cqmin; }
   .secs { font-size: 9.5cqmin; }
@@ -88,7 +88,7 @@
     border: .1em solid rgba(255, 30, 30, .22); color: rgba(255, 30, 30, .22);
   }
   .onair.show { display: block; }
-  .onair.live { background: var(--onair); border-color: var(--onair); color: #000; box-shadow: 0 0 1.2em rgba(255, 30, 30, .6); }
+  .onair.live { background: var(--onair); border-color: var(--onair); color: #000; box-shadow: 0 0 .4em rgba(255, 30, 30, .4); }
 
   .zones { display: flex; flex-direction: column; gap: 2vmin; align-items: inherit; }
   .zones.strip {
@@ -163,12 +163,6 @@
 
   <main class="clock" id="clock">
     <svg class="ring" viewBox="0 0 1000 1000" aria-hidden="true">
-      <defs>
-        <filter id="glow" x="-150%" y="-150%" width="400%" height="400%">
-          <feGaussianBlur stdDeviation="7" result="b"/>
-          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter>
-      </defs>
       <g id="secDots"></g>
       <g id="hourDots"></g>
     </svg>

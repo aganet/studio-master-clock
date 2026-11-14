@@ -26,7 +26,8 @@ change the parameters in the address bar.
 | Demo | Link |
 | --- | --- |
 | Default, UTC beside the dial | [open](https://aganet.github.io/studio-master-clock/master-clock.html) |
-| Studio with ON AIR sign and a 5 minute countdown | [open](https://aganet.github.io/studio-master-clock/master-clock.html?text=STUDIO%201&onair&countdown=300) |
+| Studio with the ON AIR sign | [open](https://aganet.github.io/studio-master-clock/master-clock.html?text=STUDIO%201&onair) |
+| Studio with a 5 minute countdown | [open](https://aganet.github.io/studio-master-clock/master-clock.html?text=STUDIO%201&countdown=300) |
 | Ham radio: UTC on the dial, call sign and grid | [open](https://aganet.github.io/studio-master-clock/master-clock.html?utc&text=M0JPK%20JN47) |
 | Newsroom world clock, six zones | [open](https://aganet.github.io/studio-master-clock/master-clock.html?text=NEWSROOM&zones=UTC,America/Los_Angeles:LA,America/New_York:NYC,Europe/London,Asia/Dubai,Asia/Tokyo) |
 | Four zones, no seconds in the strip | [open](https://aganet.github.io/studio-master-clock/master-clock.html?zones=UTC,America/New_York,Asia/Tokyo,Australia/Sydney&zoneseconds=0) |
@@ -54,10 +55,10 @@ master-clock.html
 
 ![Default view](docs/default.png)
 
-Studio: label, ON AIR sign lit and a countdown running, switched by remote control or the O and T keys.
+Studio: label and the ON AIR sign lit, switched by remote control or the O key.
 
 ```
-master-clock.html?text=STUDIO%201&onair&countdown=300
+master-clock.html?text=STUDIO%201&onair
 ```
 
 ![Studio view](docs/studio.png)
