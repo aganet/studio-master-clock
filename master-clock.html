@@ -211,7 +211,7 @@
       <tr><td><code>interval=60</code>, <code>samples=4</code></td><td>Seconds between syncs, samples per burst</td></tr>
       <tr><td><code>warn=500</code></td><td>Warn when this computer's clock is off by more than this many ms</td></tr>
       <tr><td><code>countdown=300</code></td><td>Preload the timer as a countdown (seconds)</td></tr>
-      <tr><td><code>onair</code></td><td>Always show the ON AIR sign</td></tr>
+      <tr><td><code>onair</code></td><td>Start with the ON AIR sign lit</td></tr>
       <tr><td><code>events=...</code>, <code>ws=...</code></td><td>Remote control by Server-Sent Events or WebSocket</td></tr>
       <tr><td><code>dim</code>, <code>night=22-6</code></td><td>Start dimmed; dim automatically between those hours</td></tr>
       <tr><td><code>cycle=60</code>, <code>shift=0</code></td><td>Change the LED colour every 60 minutes to even out OLED wear; turn off the pixel shift</td></tr>
@@ -802,7 +802,7 @@ const remote = {
     };
   },
 };
-tally.set(false);
+tally.set(cfg.onair);
 if (cfg.events) { try { remote.sse(new URL(cfg.events, cfg.sync?.url ?? location.href)); } catch {} }
 if (cfg.ws) remote.ws(cfg.ws);
 
@@ -950,7 +950,7 @@ const FIELDS = [
   { k: "lang", label: "Date language", type: "text", ph: navigator.language },
   { k: "date", label: "Show the date", type: "flag", on: true },
   { k: "zone", label: "Show the zone abbreviation", type: "flag", on: true },
-  { k: "onair", label: "Always show the ON AIR sign", type: "flag" },
+  { k: "onair", label: "Start with the ON AIR sign lit", type: "flag" },
   { k: "countdown", label: "Preload a countdown (seconds)", type: "number" },
   { k: "pips", label: "Hourly time pips", type: "flag" },
   { h: "Clocks" },

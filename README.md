@@ -157,7 +157,7 @@ full list.
 ### Examples
 
 ```
-# Studio wall: label, UTC beside the dial, ON AIR sign always visible
+# Studio wall: label, UTC beside the dial, ON AIR sign lit
 master-clock.html?text=STUDIO%201&onair
 
 # Studio with a 5 minute countdown preloaded and the time pips on the hour
@@ -220,7 +220,7 @@ master-clock.html?dim
 | `interval=60`, `samples=4` | Seconds between syncs, samples per burst |
 | `warn=500` | Warn when this computer's clock is off by more than this many ms |
 | `countdown=300` | Preload the timer as a countdown (seconds) |
-| `onair` | Always show the ON AIR sign |
+| `onair` | Start with the ON AIR sign lit |
 | `events=...`, `ws=...` | Remote control endpoint |
 | `dim`, `night=22-6` | Start dimmed, or dim automatically between those hours |
 | `cycle=60`, `shift=0` | Change the LED colour every 60 minutes, turn off the pixel shift |
