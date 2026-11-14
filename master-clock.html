@@ -39,8 +39,8 @@
   body.strip { grid-template-rows: minmax(0, 1fr) auto; }
   body.strip .clock { width: min(96vmin, 100vh - var(--strip-h, 17vmin) - 2vmin); height: min(96vmin, 100vh - var(--strip-h, 17vmin) - 2vmin); }
   .ring { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .ring .sec, .ring .hour, .center, .side, .zones, .readout .d { transition: fill 2s, color 2s; }
-  .ring .sec { fill: rgba(var(--led-rgb), .12); }
+  body.fade .ring .sec, body.fade .ring .hour, body.fade .center, body.fade .side, body.fade .zones, body.fade .readout .d { transition: fill 2s, color 2s; }
+  .ring .sec { fill: rgba(var(--led-rgb), .07); }
   .ring .sec.on, .ring .hour { fill: rgb(var(--led-rgb)); filter: url(#glow); }
 
   .center {
@@ -124,7 +124,7 @@
   @keyframes blink { 50% { opacity: .15; } }
   @media (prefers-reduced-motion: reduce) {
     .status.warn, .readout.over .d { animation: none; }
-    .clock, .ring .sec, .ring .hour, .center, .side, .zones, .readout .d { transition: none; }
+    .clock, body.fade .ring .sec, body.fade .ring .hour, body.fade .center, body.fade .side, body.fade .zones, body.fade .readout .d { transition: none; }
   }
 
   .help {
@@ -870,7 +870,11 @@ function render(t, p) {
     lastDateKey = dateKey;
     if (cfg.cycle) {
       const i = Math.floor(t / (cfg.cycle * 60_000)) % cfg.palette.length;
-      document.documentElement.style.setProperty("--led-rgb", cfg.palette[i]);
+      if (cfg.palette[i] !== document.documentElement.style.getPropertyValue("--led-rgb")) {
+        document.body.classList.add("fade");
+        setTimeout(() => document.body.classList.remove("fade"), 2500);
+        document.documentElement.style.setProperty("--led-rgb", cfg.palette[i]);
+      }
     }
     if (cfg.night) {
       const h = +tp.hour, { from, to } = cfg.night;

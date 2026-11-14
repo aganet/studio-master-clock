@@ -20,7 +20,27 @@ I am sharing this project to help others who might also be interested in having 
 
 ## Demo
 
-[aganet.github.io/studio-master-clock](https://aganet.github.io/studio-master-clock/master-clock.html?text=STUDIO%201), served from this repository by GitHub Pages. Add your own parameters to the URL.
+Served from this repository by GitHub Pages. Click a link, press `F` for fullscreen, or
+change the parameters in the address bar.
+
+| Demo | Link |
+| --- | --- |
+| Default, UTC beside the dial | [open](https://aganet.github.io/studio-master-clock/master-clock.html) |
+| Studio with ON AIR sign and a 5 minute countdown | [open](https://aganet.github.io/studio-master-clock/master-clock.html?text=STUDIO%201&onair&countdown=300) |
+| Ham radio: UTC on the dial, call sign and grid | [open](https://aganet.github.io/studio-master-clock/master-clock.html?utc&text=M0JPK%20JN47) |
+| Newsroom world clock, six zones | [open](https://aganet.github.io/studio-master-clock/master-clock.html?text=NEWSROOM&zones=UTC,America/Los_Angeles:LA,America/New_York:NYC,Europe/London,Asia/Dubai,Asia/Tokyo) |
+| Four zones, no seconds in the strip | [open](https://aganet.github.io/studio-master-clock/master-clock.html?zones=UTC,America/New_York,Asia/Tokyo,Australia/Sydney&zoneseconds=0) |
+| Green | [open](https://aganet.github.io/studio-master-clock/master-clock.html?color=green&text=STUDIO%202) |
+| Amber, 12-hour, German date | [open](https://aganet.github.io/studio-master-clock/master-clock.html?color=amber&h12&lang=de-CH&text=STUDIO%201) |
+| Blue | [open](https://aganet.github.io/studio-master-clock/master-clock.html?color=blue&text=CONTROL%20ROOM) |
+| White | [open](https://aganet.github.io/studio-master-clock/master-clock.html?color=white&text=MCR) |
+| Custom hex colour | [open](https://aganet.github.io/studio-master-clock/master-clock.html?color=ff8800&text=ORANGE) |
+| New York time, 12-hour, no extra clock | [open](https://aganet.github.io/studio-master-clock/master-clock.html?tz=America/New_York&h12&lang=en-US&zones=0) |
+| Home: dimmed 23-7, colour change every 2 hours | [open](https://aganet.github.io/studio-master-clock/master-clock.html?text=HOME&night=23-7&cycle=120) |
+| Colour cycling every minute (to see it happen) | [open](https://aganet.github.io/studio-master-clock/master-clock.html?cycle=1) |
+| Dimmed, no date line | [open](https://aganet.github.io/studio-master-clock/master-clock.html?dim&date=0) |
+| Hourly time pips (click once to allow sound) | [open](https://aganet.github.io/studio-master-clock/master-clock.html?pips&text=PIPS) |
+| Synced to a public time server | [open](https://aganet.github.io/studio-master-clock/master-clock.html?sync=timeapi&text=SYNCED) |
 
 ## Screenshots
 
